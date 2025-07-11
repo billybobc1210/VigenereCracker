@@ -1,0 +1,515 @@
+package com.encryption.vigenere.cracker
+
+import com.encryption.vigenere.encipher.VigenereCipher
+import java.lang.Math.abs
+import java.lang.Math.log
+import kotlin.math.pow
+import kotlin.math.sqrt
+
+class VigenereSolution(val key: String, val plainText: String)
+
+class VigenereCracker {
+    fun crack(cipherText: String): VigenereSolution {
+        val mostLikelyKeyLength = getMostLikelyKeyLength(cipherText, 2..15)
+        val mostLikelyKey = getMostLikelyKey(cipherText, mostLikelyKeyLength)
+        val vigenereCipher = VigenereCipher()
+        val mostLikelyPlainText = vigenereCipher.decipher(cipherText, mostLikelyKey)
+
+        return VigenereSolution(mostLikelyKey, mostLikelyPlainText)
+    }
+
+//    fun crack(cipherText: String): String {
+//        println(getCandidatesForNgram(cipherText,2).joinToString())
+//        println(getCandidatesForNgram(cipherText,3).joinToString())
+//        println(getCandidatesForNgram(cipherText,4).joinToString())
+//        println(cipherText)
+//        val bigramIndexMap = mutableMapOf<String, MutableList<Int>>()
+//        for (i in 0 until cipherText.length - 1) {
+//            var bigram = cipherText.substring(i,i+2)
+//            var bigramIndexList = bigramIndexMap[bigram]
+//            if (bigramIndexList == null) {
+//                bigramIndexList = mutableListOf()
+//            }
+//
+//            bigramIndexList.add(i)
+//            bigramIndexMap[bigram] = bigramIndexList
+//        }
+//
+//        println("distinct bigrams: " + bigramIndexMap.size)
+//        println("ratio of length of text to distinct bigrams: " + (cipherText.length.toDouble() / bigramIndexMap.size.toDouble()))
+//
+//        val diffModMap = mutableMapOf<Int, Int?>()
+//
+//        for ((bigram, indexList) in bigramIndexMap) {
+//            for (i in 0 until indexList.size-1) {
+//                var firstIndex = indexList[i]
+//
+//                for (j in i+1 until indexList.size) {
+//                    var diff = indexList[j] - firstIndex
+//                    for (m in 2..100) {
+//                        if (diff % m == 0) {
+//                            var diffMod = diffModMap[m]
+//                            if (diffMod == null) {
+//                                diffMod = 0
+//                            }
+//                            diffMod++
+//                            diffModMap[m] = diffMod
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        val sortedDiffModMap: Array<Int> = diffModMap.entries.sortedByDescending {  it.value  }.map { it.key }.toTypedArray()
+//
+//        println(bigramIndexMap)
+//        println(diffModMap)
+//        println(sortedDiffModMap.joinToString())
+//        println(cipherText)
+//        val trigramIndexMap = mutableMapOf<String, MutableList<Int>>()
+//        for (i in 0 until cipherText.length - 2) {
+//            var trigram = cipherText.substring(i,i+3)
+//            var trigramIndexList = trigramIndexMap[trigram]
+//            if (trigramIndexList == null) {
+//                trigramIndexList = mutableListOf()
+//            }
+//
+//            trigramIndexList.add(i)
+//            trigramIndexMap[trigram] = trigramIndexList
+//        }
+//
+//        println("distinct trigrams: " + trigramIndexMap.size)
+//        println("ratio of length of text to distinct trigrams: " + (cipherText.length.toDouble() / trigramIndexMap.size.toDouble()))
+//
+//        val diffModMap = mutableMapOf<Int, Int?>()
+//
+//        for ((trigram, indexList) in trigramIndexMap) {
+//            for (i in 0 until indexList.size-1) {
+//                var firstIndex = indexList[i]
+//
+//                for (j in i+1 until indexList.size) {
+//                    var diff = indexList[j] - firstIndex
+//                    for (m in 2..100) {
+//                        if (diff % m == 0) {
+//                            var diffMod = diffModMap[m]
+//                            if (diffMod == null) {
+//                                diffMod = 0
+//                            }
+//                            diffMod++
+//                            diffModMap[m] = diffMod
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        val sortedDiffModMap: Array<Int> = diffModMap.entries.sortedByDescending {  it.value  }.map { it.key }.toTypedArray()
+//
+//        println(trigramIndexMap)
+//        println(diffModMap)
+//        println(sortedDiffModMap.joinToString())
+//        return ""
+//    }
+
+    fun getCandidatesForNgram(cipherText: String, n: Int): Array<Int> {
+        println(cipherText)
+        val ngramIndexMap = mutableMapOf<String, MutableList<Int>>()
+        for (i in 0 until cipherText.length - n - 1) {
+            var ngram = cipherText.substring(i,i+n)
+            var ngramIndexList = ngramIndexMap[ngram]
+            if (ngramIndexList == null) {
+                ngramIndexList = mutableListOf()
+            }
+
+            ngramIndexList.add(i)
+            ngramIndexMap[ngram] = ngramIndexList
+        }
+
+        println("distinct $n-grams: " + ngramIndexMap.size)
+        println("ratio of length of text to distinct $n=grams: " + (cipherText.length.toDouble() / ngramIndexMap.size.toDouble()))
+
+        val diffModMap = mutableMapOf<Int, Int?>()
+
+        for ((ngram, indexList) in ngramIndexMap) {
+            for (i in 0 until indexList.size-1) {
+                var firstIndex = indexList[i]
+
+                for (j in i+1 until indexList.size) {
+                    var diff = indexList[j] - firstIndex
+                    for (m in 2..100) {
+                        if (diff % m == 0) {
+                            var diffMod = diffModMap[m]
+                            if (diffMod == null) {
+                                diffMod = 0
+                            }
+                            diffMod++
+                            diffModMap[m] = diffMod
+                        }
+                    }
+                }
+            }
+        }
+
+        return diffModMap.entries.sortedByDescending {  it.value  }.map { it.key }.toTypedArray()
+    }
+
+    fun getCharFrequencyMap(text: String): List<Map.Entry<Char, Double>> {
+        val result = text
+            .groupingBy { it }
+            .eachCount()
+            .toMutableMap()
+
+        for (c in 'A'..'Z') {
+            result.putIfAbsent(c, 0)
+        }
+
+        return result.mapValues { it.value.toDouble() / text.length }.entries
+            .sortedByDescending { it.value }
+    }
+
+    fun getMeanAbsoluteDeviation(frequencyMap: List<Map.Entry<Char, Double>>): Double {
+        val values = frequencyMap.map { it.value }
+        val mean = values.average()
+
+        return values.sumOf { abs(it - mean) }
+    }
+
+    fun getStandardDeviation(frequencyMap: List<Map.Entry<Char, Double>>): Double {
+        val values = frequencyMap.map { it.value }
+        val mean = values.average()
+        val variance = values.sumOf { (it.toDouble() - mean).pow(2) } / values.size
+
+        return sqrt(variance)
+    }
+
+    fun buildStringFromEveryNthChar(text: String, n: Int, offset: Int = 0): String {
+        return text.substring(offset).filterIndexed { index, _ -> index % n == 0 }
+    }
+
+    fun getScore(cipherText: String, keyLength: Int): Double {
+        var stdDevSum = 0.0
+
+        for (offset in 0 ..  keyLength-1) {
+//            println("Key length: $keyLength, Offset: $offset")
+            val cipherSlice = buildStringFromEveryNthChar(cipherText, keyLength, offset)
+//            println("C: $cipherSlice")
+            val cipherFrequencyMap = getCharFrequencyMap(cipherSlice)
+//            println("C: $cipherFrequencyMap")
+//            val plainSlice = buildStringFromEveryNthChar(plainText, keyLength, offset)
+//            println("P: $plainSlice")
+//            val plainFrequencyMap = getLetterFrequencyMap(plainSlice)
+//            println("P: $plainFrequencyMap")
+//            numZeroes += cipherFrequencyMap.map { it.value }.count { it == 0 }
+//            numOnes += cipherFrequencyMap.map { it.value }.count { it == 1 }
+            stdDevSum += getStandardDeviation(cipherFrequencyMap)
+//            println(cipherText)
+//            println("Slice: $slice")
+//            println("Key length: $keyLength, offset: $offset")
+//            println("Frequency map:  $frequencyMap")
+//            println("Mean absolute deviation: " + getMeanAbsoluteDeviation(frequencyMap))
+//            println("Standard deviation: " + getStandardDeviation(frequencyMap))
+//            println("Number of zeroes: " + numZeroes)
+        }
+
+        val averageStdDev = stdDevSum / keyLength.toDouble()
+        val ratioCipherTextToKeyLength = cipherText.length.toDouble() / keyLength.toDouble()
+
+        return averageStdDev * log(ratioCipherTextToKeyLength)
+//        return averageStdDev
+    }
+
+    fun getMostLikelyKeyLength(cipherText: String, keyLengthRange: IntRange): Int {
+        var result = 0
+        var bestScore = 0.0
+
+        for (keyLength in keyLengthRange) {
+//            println(plainText)
+//            println("Plain freq map: " + getLetterFrequencyMap(plainText))
+//            println(cipherText)
+//            println("Cipher freq map: " + getLetterFrequencyMap(cipherText))
+            var score = getScore(cipherText, keyLength)
+
+            if (score > bestScore) {
+                bestScore = score
+                result = keyLength
+            }
+//            println()
+        }
+
+        return result
+    }
+
+    fun getMostLikelyKey(cipherText: String, keyLength: Int): String {
+        val candidateKeyCharsByKeyCharPosition = mutableListOf<List<Char>>()
+
+        for (keyCharPosition in 0 until keyLength) {
+            val cipherSlice = buildStringFromEveryNthChar(cipherText, keyLength, keyCharPosition)
+            val cipherFrequencyMap = getCharFrequencyMap(cipherSlice)
+            var cipherChar = cipherFrequencyMap[0].key
+
+            val candidateKeyChars = mutableListOf<Char>()
+
+            for (c in TOP_10_ENGLISH_LETTERS) {
+                getKeyCharForSpeculatedPlainChar(cipherChar, c)?.let { candidateKeyChars.add(it) }
+            }
+
+            candidateKeyCharsByKeyCharPosition.add(candidateKeyChars)
+        }
+
+        val vigenerCipher = VigenereCipher()
+        val bestCandidateKeyCharIdx = MutableList(keyLength) { 0 }
+
+        for (n in 0..1) {
+            for (keyCharPosition in 0 until keyLength) {
+                val keyStartBuilder = StringBuilder()
+
+                for (startKeyCharPosition in 0 until keyCharPosition) {
+                    keyStartBuilder.append(candidateKeyCharsByKeyCharPosition[startKeyCharPosition][bestCandidateKeyCharIdx[startKeyCharPosition]])
+                }
+
+                var bestGrade = 0.0
+
+                for (candidateKeyCharIdx in candidateKeyCharsByKeyCharPosition[keyCharPosition].indices) {
+                    var keyBuilder = StringBuilder(keyStartBuilder)
+                    keyBuilder.append(candidateKeyCharsByKeyCharPosition[keyCharPosition][candidateKeyCharIdx])
+
+                    for (tailKeyCharPosition in keyCharPosition + 1 until keyLength) {
+                        keyBuilder.append(candidateKeyCharsByKeyCharPosition[tailKeyCharPosition][bestCandidateKeyCharIdx[tailKeyCharPosition]])
+                    }
+
+                    var plainText = vigenerCipher.decipher(cipherText, keyBuilder.toString())
+                    var grade = getGradeForEnglish(plainText)
+
+                    if (grade > bestGrade) {
+                        bestGrade = grade
+                        bestCandidateKeyCharIdx[keyCharPosition] = candidateKeyCharIdx
+                    }
+                }
+            }
+        }
+
+        val result = StringBuilder()
+
+        for (offset in 0 until keyLength) {
+            result.append(candidateKeyCharsByKeyCharPosition[offset][bestCandidateKeyCharIdx[offset]])
+        }
+
+        return result.toString()
+//        val candidateKey = candidateKeyBuilder.toString()
+//
+//        val vigenereCipher =  VigenereCipher()
+//        val plainText = vigenereCipher.decipher(cipherText, candidateKey)
+//        val mostLikelyIncorrect = getMostLikelyIncorrectKeyChars(plainText, keyLength)
+//        var result = ""
+
+
+//        var bestGrade = 0.0
+//
+//        cartesianProduct(candidateKeyCharsByOffset)
+//            .map { it.joinToString("") }
+//            .forEach { key ->
+//                val plainText = vigenereCipher.decipher(cipherText, key)
+//                val grade = getGradeForEnglish(plainText)
+//                if (grade > bestGrade) {
+//                    bestGrade = grade
+//                    result = key
+//                }
+//            }
+
+//        return result
+    }
+
+    fun <T> cartesianProduct(lists: List<List<T>>): List<List<T>> {
+        return lists.fold(listOf(listOf())) { acc, list ->
+            acc.flatMap { partial ->
+                list.map { element -> partial + element }
+            }
+        }
+    }
+
+    fun getGradeForEnglish(plainText: String): Double {
+        return ((1.0 * getNgramCount(plainText, 2).toDouble()) +
+                (1.1 * getNgramCount(plainText, 3).toDouble()) +
+                (1.2 * getNgramCount(plainText, 4).toDouble())) /
+                plainText.length.toDouble()
+    }
+
+    fun getNgramCount(plainText: String, n: Int): Int {
+//        val nGrams = plainText
+//            .windowed(n)
+//            .filter { it in nGramSet }
+//            .groupingBy { it }
+//            .eachCount()
+
+        var result = 0
+
+        TOP_10_ENGLISH_NGRAMS[n]?.let { nGramSet ->
+            for (i in 0 until plainText.length - n + 1) {
+                val nGram = plainText.substring(i, i + n)
+                if (nGram in nGramSet) {
+                    result++
+                }
+            }
+        }
+
+        return result
+    }
+
+    fun getKeyCharForSpeculatedPlainChar(cipherChar: Char, speculatedPlainChar: Char): Char? {
+        var result: Char? = null
+
+        for (keyChar in 'A' .. 'Z') {
+            var found = false
+            TABULA_RECTA[keyChar]
+                ?.getOrNull(speculatedPlainChar - 'A')
+                ?.let {
+                    if (it == cipherChar) {
+                        result = keyChar
+                        found = true
+                    }
+                }
+
+            if (found) {
+                break
+            }
+        }
+
+        return result
+    }
+
+    fun collapseRepeatedString(s: String): String {
+        val n = s.length
+        for (i in 1..n / 2) {
+            val part = s.substring(0, i)
+            val repeated = part.repeat(n / i)
+            if (repeated == s) {
+                return part
+            }
+        }
+
+        return s
+    }
+
+    companion object {
+        val TABULA_RECTA: MutableMap<Char, String> = mutableMapOf()
+
+        init {
+            TABULA_RECTA['A'] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            TABULA_RECTA['B'] = "BCDEFGHIJKLMNOPQRSTUVWXYZA"
+            TABULA_RECTA['C'] = "CDEFGHIJKLMNOPQRSTUVWXYZAB"
+            TABULA_RECTA['D'] = "DEFGHIJKLMNOPQRSTUVWXYZABC"
+            TABULA_RECTA['E'] = "EFGHIJKLMNOPQRSTUVWXYZABCD"
+            TABULA_RECTA['F'] = "FGHIJKLMNOPQRSTUVWXYZABCDE"
+            TABULA_RECTA['G'] = "GHIJKLMNOPQRSTUVWXYZABCDEF"
+            TABULA_RECTA['H'] = "HIJKLMNOPQRSTUVWXYZABCDEFG"
+            TABULA_RECTA['I'] = "IJKLMNOPQRSTUVWXYZABCDEFGH"
+            TABULA_RECTA['J'] = "JKLMNOPQRSTUVWXYZABCDEFGHI"
+            TABULA_RECTA['K'] = "KLMNOPQRSTUVWXYZABCDEFGHIJ"
+            TABULA_RECTA['L'] = "LMNOPQRSTUVWXYZABCDEFGHIJK"
+            TABULA_RECTA['M'] = "MNOPQRSTUVWXYZABCDEFGHIJKL"
+            TABULA_RECTA['N'] = "NOPQRSTUVWXYZABCDEFGHIJKLM"
+            TABULA_RECTA['O'] = "OPQRSTUVWXYZABCDEFGHIJKLMN"
+            TABULA_RECTA['P'] = "PQRSTUVWXYZABCDEFGHIJKLMNO"
+            TABULA_RECTA['Q'] = "QRSTUVWXYZABCDEFGHIJKLMNOP"
+            TABULA_RECTA['R'] = "RSTUVWXYZABCDEFGHIJKLMNOPQ"
+            TABULA_RECTA['S'] = "STUVWXYZABCDEFGHIJKLMNOPQR"
+            TABULA_RECTA['T'] = "TUVWXYZABCDEFGHIJKLMNOPQRS"
+            TABULA_RECTA['U'] = "UVWXYZABCDEFGHIJKLMNOPQRST"
+            TABULA_RECTA['V'] = "VWXYZABCDEFGHIJKLMNOPQRSTU"
+            TABULA_RECTA['W'] = "WXYZABCDEFGHIJKLMNOPQRSTUV"
+            TABULA_RECTA['X'] = "XYZABCDEFGHIJKLMNOPQRSTUVW"
+            TABULA_RECTA['Y'] = "YZABCDEFGHIJKLMNOPQRSTUVWX"
+            TABULA_RECTA['Z'] = "ZABCDEFGHIJKLMNOPQRSTUVWXY"
+        }
+
+        val TOP_10_ENGLISH_LETTERS = listOf('E', 'T', 'A', 'O', 'I', 'N', 'S', 'H', 'R', 'D')
+
+//        val TOP_10_ENGLISH_BIGRAMS = mapOf<String, List<String>>(
+//            "TH" to listOf(),
+//            "HE" to listOf(),
+//            "IN" to listOf(),
+//            "ER" to listOf(),
+//            "AN" to listOf(),
+//            "RE" to listOf(),
+//            "ND" to listOf(),
+//            "AT" to listOf(),
+//            "ON" to listOf(),
+//            "NT" to listOf(),
+//        )
+//
+//        val TOP_10_ENGLISH_TRIGRAMS = mapOf(
+//            "THE" to listOf(".HE", "T.E", "TH."),
+//            "AND" to listOf(".ND", "A.D", "AN."),
+//            "ING" to listOf(".NG", "I.G", "IN."),
+//            "HER" to listOf(".ER", "H.R", "HE."),
+//            "ENG" to listOf(".NG", "E.G", "EN."),
+//            "ION" to listOf(".ON", "I.N", "IO."),
+//            "THA" to listOf(".HA", "T.A", "TH."),
+//            "NTH" to listOf(".TH", "N.H", "NT."),
+//            "INT" to listOf(".NT", "I.T", "IN."),
+//            "ERE" to listOf(".RE", "E.E", "ER."),
+//        )
+//
+//        val TOP_10_ENGLISH_TRIGRAM_WILDCARDS = mutableMapOf<String, List<String>>()
+//
+//        val TOP_10_ENGLISH_4GRAMS = setOf(
+//            "TION" to listOf(".ION", "T.ON", "TI.N", "TIO.", "..ON", ".I.N", ".IO.", "T..N", "T.O.", "TI.."),
+//            "THER" to listOf(".HER", "T.ER", "TH.R", "THE.", "..ER", ".H.R", ".HE.", "T..R", "T.E.", "TH.."),
+//            "WITH" to listOf(".ITH", "W.TH", "WI.H", "WIT.", "..TH", ".I.H", ".IT.", "W..H", "W.T.", "WI.."),
+//            "MENT" to listOf(".ION", "T.ON", "TI.N", "TIO.", "..ON", ".I.N", ".IO.", "T..N", "T.O.", "TI.."),
+//            "IONS" to listOf(".ION", "T.ON", "TI.N", "TIO.", "..ON", ".I.N", ".IO.", "T..N", "T.O.", "TI.."),
+//            "HERE" to listOf(".ION", "T.ON", "TI.N", "TIO.", "..ON", ".I.N", ".IO.", "T..N", "T.O.", "TI.."),
+//            "THAT" to listOf(".ION", "T.ON", "TI.N", "TIO.", "..ON", ".I.N", ".IO.", "T..N", "T.O.", "TI.."),
+//            "OULD" to listOf(".ION", "T.ON", "TI.N", "TIO.", "..ON", ".I.N", ".IO.", "T..N", "T.O.", "TI.."),
+//            "IGHT" to listOf(".ION", "T.ON", "TI.N", "TIO.", "..ON", ".I.N", ".IO.", "T..N", "T.O.", "TI.."),
+//            "HAVE" to listOf(".ION", "T.ON", "TI.N", "TIO.", "..ON", ".I.N", ".IO.", "T..N", "T.O.", "TI.."),
+//        )
+//
+//        val TOP_10_ENGLISH_4GRAM_WILDCARDS = mutableMapOf<String, List<String>>()
+
+        val TOP_10_ENGLISH_BIGRAMS = setOf(
+            "TH",
+            "HE",
+            "IN",
+            "ER",
+            "AN",
+            "RE",
+            "ND",
+            "AT",
+            "ON",
+            "NT",
+        )
+
+        val TOP_10_ENGLISH_TRIGRAMS = setOf(
+            "THE",
+            "AND",
+            "ING",
+            "HER",
+            "ENG",
+            "ION",
+            "THA",
+            "NTH",
+            "INT",
+            "ERE",
+        )
+
+        val TOP_10_ENGLISH_4GRAMS = setOf(
+            "TION",
+            "THER",
+            "WITH",
+            "MENT",
+            "IONS",
+            "HERE",
+            "THAT",
+            "OULD",
+            "IGHT",
+            "HAVE",
+        )
+
+        val TOP_10_ENGLISH_NGRAMS = mapOf(
+            2 to TOP_10_ENGLISH_BIGRAMS,
+            3 to TOP_10_ENGLISH_TRIGRAMS,
+            4 to TOP_10_ENGLISH_4GRAMS
+        )
+    }
+}

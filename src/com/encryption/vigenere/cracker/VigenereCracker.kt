@@ -72,30 +72,26 @@ class VigenereCracker {
     }
 
     fun getMostLikelyKey(cipherText: String, keyLength: Int): String {
-        val candidateKeyCharsByKeyCharPosition = mutableListOf<List<Char>>()
+        val keyCharCandidatesByKeyCharPosition = mutableListOf<List<Char>>()
 
         for (keyCharPosition in 0 until keyLength) {
             val cipherSlice = buildStringFromEveryNthChar(cipherText, keyLength, keyCharPosition)
             val cipherFrequencyMap = getCharFrequencyMap(cipherSlice)
             var mostFrequentCipherChar = cipherFrequencyMap[0].key
 
-            val candidateKeyChars = mutableListOf<Char>()
+            val keyCharCandidates = mutableListOf<Char>()
 
             for (c in TOP_10_ENGLISH_LETTERS) {
-                getKeyCharForSpeculatedPlainChar(mostFrequentCipherChar, c)?.let { candidateKeyChars.add(it) }
+                getKeyCharForSpeculatedPlainChar(mostFrequentCipherChar, c)?.let { keyCharCandidates.add(it) }
             }
 
-            candidateKeyCharsByKeyCharPosition.add(candidateKeyChars)
+            keyCharCandidatesByKeyCharPosition.add(keyCharCandidates)
         }
 
         val vigenereCipher = VigenereCipher()
-        val bestCandidateKeyCharIdxList = MutableList(keyLength) { 0 }
+        val bestKeyCharCandidates = keyCharCandidatesByKeyCharPosition.map { it[0] }.toMutableList()
+        var currentBestKey = bestKeyCharCandidates.map { it }.joinToString("")
         var prevBestKey = ""
-        var currentBestKey = buildKeyFromBestCandidates(
-            keyLength,
-            candidateKeyCharsByKeyCharPosition,
-            bestCandidateKeyCharIdxList
-        )
 
         while (prevBestKey != currentBestKey) {
             prevBestKey = currentBestKey
@@ -104,51 +100,33 @@ class VigenereCracker {
                 val startOfKeyBuilder = StringBuilder()
 
                 for (startKeyCharPosition in 0 until keyCharPosition) {
-                    startOfKeyBuilder.append(candidateKeyCharsByKeyCharPosition[startKeyCharPosition][bestCandidateKeyCharIdxList[startKeyCharPosition]])
+                    startOfKeyBuilder.append(bestKeyCharCandidates[startKeyCharPosition])
                 }
 
-                var bestScore = 0.0
+                var bestEnglishScore = 0.0
 
-                for (candidateKeyCharIdx in candidateKeyCharsByKeyCharPosition[keyCharPosition].indices) {
-                    var endOfKeyBuilder = StringBuilder(startOfKeyBuilder)
-                    endOfKeyBuilder.append(candidateKeyCharsByKeyCharPosition[keyCharPosition][candidateKeyCharIdx])
+                for (newBestKeyCharCandidate in keyCharCandidatesByKeyCharPosition[keyCharPosition]) {
+                    val completeKeyBuilder = StringBuilder(startOfKeyBuilder)
+                    completeKeyBuilder.append(newBestKeyCharCandidate)
 
                     for (tailKeyCharPosition in keyCharPosition + 1 until keyLength) {
-                        endOfKeyBuilder.append(candidateKeyCharsByKeyCharPosition[tailKeyCharPosition][bestCandidateKeyCharIdxList[tailKeyCharPosition]])
+                        completeKeyBuilder.append(bestKeyCharCandidates[tailKeyCharPosition])
                     }
 
-                    var plainText = vigenereCipher.decipher(cipherText, endOfKeyBuilder.toString())
-                    var score = getEnglishPlainTextScore(plainText)
+                    val plainText = vigenereCipher.decipher(cipherText, completeKeyBuilder.toString())
+                    val englishScore = getEnglishPlainTextScore(plainText)
 
-                    if (score > bestScore) {
-                        bestScore = score
-                        bestCandidateKeyCharIdxList[keyCharPosition] = candidateKeyCharIdx
+                    if (englishScore > bestEnglishScore) {
+                        bestEnglishScore = englishScore
+                        bestKeyCharCandidates[keyCharPosition] = newBestKeyCharCandidate
                     }
                 }
             }
 
-            currentBestKey = buildKeyFromBestCandidates(
-                keyLength,
-                candidateKeyCharsByKeyCharPosition,
-                bestCandidateKeyCharIdxList
-            )
+            currentBestKey = bestKeyCharCandidates.map { it }.joinToString("")
         }
 
         return EncryptionUtil.collapseRepeatedString(currentBestKey)
-    }
-
-    fun buildKeyFromBestCandidates(
-        keyLength: Int,
-        candidateKeyCharsByKeyCharPosition: List<List<Char>>,
-        bestCandidateKeyCharIdxList: List<Int>
-    ): String {
-        val result = StringBuilder()
-
-        for (keyCharPosition in 0 until keyLength) {
-            result.append(candidateKeyCharsByKeyCharPosition[keyCharPosition][bestCandidateKeyCharIdxList[keyCharPosition]])
-        }
-
-        return result.toString()
     }
 
     fun getEnglishPlainTextScore(plainText: String): Double {
@@ -225,45 +203,20 @@ class VigenereCracker {
             'Z' to "ZABCDEFGHIJKLMNOPQRSTUVWXY",
         )
 
-        val TOP_10_ENGLISH_LETTERS = listOf('E', 'T', 'A', 'O', 'I', 'N', 'S', 'H', 'R', 'D')
+        val TOP_10_ENGLISH_LETTERS = listOf(
+            'E', 'T', 'A', 'O', 'I', 'N', 'S', 'H', 'R', 'D'
+        )
 
         val TOP_10_ENGLISH_BIGRAMS = setOf(
-            "TH",
-            "HE",
-            "IN",
-            "ER",
-            "AN",
-            "RE",
-            "ND",
-            "AT",
-            "ON",
-            "NT",
+            "TH", "HE", "IN", "ER", "AN", "RE", "ND", "AT", "ON", "NT",
         )
 
         val TOP_10_ENGLISH_TRIGRAMS = setOf(
-            "THE",
-            "AND",
-            "ING",
-            "HER",
-            "ENG",
-            "ION",
-            "THA",
-            "NTH",
-            "INT",
-            "ERE",
+            "THE", "AND", "ING", "HER", "ENG", "ION", "THA", "NTH", "INT", "ERE",
         )
 
         val TOP_10_ENGLISH_QUADRIGRAMS = setOf(
-            "TION",
-            "THER",
-            "WITH",
-            "MENT",
-            "IONS",
-            "HERE",
-            "THAT",
-            "OULD",
-            "IGHT",
-            "HAVE",
+            "TION", "THER", "WITH", "MENT", "IONS", "HERE", "THAT", "OULD", "IGHT", "HAVE",
         )
 
         val TOP_10_ENGLISH_NGRAMS = mapOf(
