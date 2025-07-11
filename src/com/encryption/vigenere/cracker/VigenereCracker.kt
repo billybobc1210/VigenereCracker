@@ -59,12 +59,12 @@ class VigenereCracker {
         var result = 0
         var bestScore = 0.0
 
-        for (keyLength in keyLengthRange) {
-            var score = getKeyLengthScore(cipherText, keyLength)
+        for (candidateKeyLength in keyLengthRange) {
+            var score = getKeyLengthScore(cipherText, candidateKeyLength)
 
             if (score > bestScore) {
                 bestScore = score
-                result = keyLength
+                result = candidateKeyLength
             }
         }
 
