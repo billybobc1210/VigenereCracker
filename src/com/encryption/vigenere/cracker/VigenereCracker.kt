@@ -89,36 +89,54 @@ class VigenereCracker {
         }
 
         val vigenereCipher = VigenereCipher()
+
+        // Initialize 'bestKeyCharCandidates' to be the first key char candidate for each key char position.
+        // Basically, we are assuming to start out with, that the most common cipher character in each
+        // cipher slice represented a plain text 'E' (the first character in TOP_10_ENGLISH_LETTERS).
         val bestKeyCharCandidates = keyCharCandidatesByKeyCharPosition.map { it[0] }.toMutableList()
         var currentBestKey = bestKeyCharCandidates.map { it }.joinToString("")
         var prevBestKey = ""
 
+        // Iteratively try to improve the best key until there was no improvement from the last iteration.
         while (prevBestKey != currentBestKey) {
             prevBestKey = currentBestKey
 
+            // Loop through all key char positions, testing all key char candidates at 'keyCharPosition' and
+            // updating 'bestKeyCharCandidates[keyCharPosition]' when we find a new key char candidate at
+            // that position that yields better plain text results than the previous best.
             for (keyCharPosition in 0 until keyLength) {
+                // Use 'bestKeyCharCandidates[key char position]' to build the key for all key char
+                // positions other than 'keyCharPosition'.
                 val startOfKeyBuilder = StringBuilder()
 
-                for (startKeyCharPosition in 0 until keyCharPosition) {
-                    startOfKeyBuilder.append(bestKeyCharCandidates[startKeyCharPosition])
+                for (startOfKeyCharPosition in 0 until keyCharPosition) {
+                    startOfKeyBuilder.append(bestKeyCharCandidates[startOfKeyCharPosition])
+                }
+
+                val endOfKeyBuilder = StringBuilder()
+
+                for (endOfKeyCharPosition in keyCharPosition + 1 until keyLength) {
+                    endOfKeyBuilder.append(bestKeyCharCandidates[endOfKeyCharPosition])
                 }
 
                 var bestEnglishScore = 0.0
 
-                for (newBestKeyCharCandidate in keyCharCandidatesByKeyCharPosition[keyCharPosition]) {
+                // Loop thru all key char candidates at 'keyCharPosition', using each of them to build a new key
+                // and testing to find the best key char candidate at this position.
+                for (keyCharCandidate in keyCharCandidatesByKeyCharPosition[keyCharPosition]) {
                     val completeKeyBuilder = StringBuilder(startOfKeyBuilder)
-                    completeKeyBuilder.append(newBestKeyCharCandidate)
+                        .append(keyCharCandidate)
+                        .append(endOfKeyBuilder)
 
-                    for (tailKeyCharPosition in keyCharPosition + 1 until keyLength) {
-                        completeKeyBuilder.append(bestKeyCharCandidates[tailKeyCharPosition])
-                    }
-
-                    val plainText = vigenereCipher.decipher(cipherText, completeKeyBuilder.toString())
+                    val plainText = vigenereCipher.decipher(cipherText, completeKeyBuilder)
                     val englishScore = getEnglishPlainTextScore(plainText)
 
                     if (englishScore > bestEnglishScore) {
+                        // Found better character from key char candidates at this key character position,
+                        // so we update 'bestKeyCharCandidates[keyCharPosition]' with the new best key char
+                        // candidate.
                         bestEnglishScore = englishScore
-                        bestKeyCharCandidates[keyCharPosition] = newBestKeyCharCandidate
+                        bestKeyCharCandidates[keyCharPosition] = keyCharCandidate
                     }
                 }
             }

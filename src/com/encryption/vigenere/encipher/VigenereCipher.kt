@@ -18,6 +18,14 @@ class VigenereCipher() {
         return result.toString()
     }
 
+    fun decipher(cipherText: String, key: StringBuilder): String {
+        return decipher(cipherText, key.toString())
+    }
+
+    fun decipher(cipherText: String, key: StringBuffer): String {
+        return decipher(cipherText, key.toString())
+    }
+
     fun decipher(cipherText: String, key: String): String {
         val result = StringBuilder()
 
