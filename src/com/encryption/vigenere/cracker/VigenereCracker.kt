@@ -131,8 +131,8 @@ class VigenereCracker {
 
     fun getEnglishPlainTextScore(plainText: String): Double {
         return ((1.0 * getEnglishNgramCount(plainText, 2).toDouble()) +
-                (1.1 * getEnglishNgramCount(plainText, 3).toDouble()) +
-                (1.2 * getEnglishNgramCount(plainText, 4).toDouble())) /
+                (2.0 * getEnglishNgramCount(plainText, 3).toDouble()) +
+                (4.0 * getEnglishNgramCount(plainText, 4).toDouble())) /
                 plainText.length.toDouble()
     }
 
@@ -155,19 +155,13 @@ class VigenereCracker {
         var result: Char? = null
 
         for (keyChar in 'A' .. 'Z') {
-            var found = false
             TABULA_RECTA[keyChar]
                 ?.getOrNull(speculatedPlainChar - 'A')
                 ?.let {
                     if (it == cipherChar) {
-                        result = keyChar
-                        found = true
+                        return keyChar
                     }
                 }
-
-            if (found) {
-                break
-            }
         }
 
         return result
