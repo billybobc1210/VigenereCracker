@@ -70,6 +70,14 @@ class VigenereCracker {
             }
         }
 
+        // Key length scores tend to favor high key lengths over low ones since the scores are based off of the std
+        // deviation of the frequency maps on the slices we take from the cipher text.  When we have high key lengths,
+        // the slices we take from the cipher text are shorter so they tend to have more anomalous frequencies (e.g.
+        // more 0-occurrence characters) which makes their std devs higher.  So even if the actual key is length 3,
+        // we might have a result of 15 at this point.  So we're going to go thru the factors of 15 (3 and 5) and we're
+        // going to check the scores for 3, 6, 9 and 12 first.  If all of these have similar scores to the high score
+        // for 15, then most likely the key length is actually 3.  If those are not all similar, we'll do the same
+        // thing for 5 and 10. If not all of those are similar then the key length most likely really is 15.
         var factors = EncryptionUtil.getIntegerFactors(result, false)
 
         for (factor in factors) {
