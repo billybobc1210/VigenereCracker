@@ -1,11 +1,12 @@
 # Vigenere Cipher Cracker
 
 This is a program for cracking a message enciphered using a Vigenere Cipher.  The class for doing the cracking is called
-VigenereCracker.  It also includes a class, VigenereCipher, for enciphering and deciphering such messages given a key.  
+VigenereCracker.  The project also includes a class, VigenereCipher, for enciphering and deciphering such messages given
+a key.  
 
-## How it works
+## How the Vigenere Cipher works
 
-A Vigenere Cipher works as follows.  Given a plain text message such as:
+Given a plain text message such as:
 
 ```
 All we have to fear is fear itself.
@@ -87,16 +88,17 @@ all from the same enciphering alphabet and use frequency analysis to work backwa
 
 *Note: the example used here is too short to work in practice, but using it here for illustrative purposes.*
 
-Given a cipher text that was enciphered with a key of length 3, for example,
+Using our example of a text that was enciphered with a key, "DOG, for example
 
 ```
 DZRZSNDJKWCLHOXLGLHOXLHYHZL
 ```
 
-if we conjecture a key length of 3 and rewrite the cipher text like this:
+if we conjecture a key length of 3 and break the cipher text up into multiple strings of length 3 and rewrite it 
+like this:
 
 ```
-??? <- KEY
+DOG <- KEY
 ---
 DZR
 ZSN
@@ -110,7 +112,7 @@ HZL
 ```
 we can see that every character in column 0 was enciphered using the 'D' character in the key, meaning that all those
 characters came from the same enciphering alphabet in the tabula recta. Similar for column 1 ('O' character in the key) 
-and 2 ('G' character in the key). This will only be true for key lengths of 3 or multiples of 3.  Therefore, if we 
+and 2 ('G' character in the key). This will only be true for key lengths of 3 (or multiples of 3).  Therefore, if we 
 construct 3 strings from the characters in each of these 3 columns like this:
 ```
 Column 1: DZDWHLHLH  
