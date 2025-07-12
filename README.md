@@ -117,9 +117,11 @@ Column 1: DZDWHLHLH
 Column 2: ZSJCOGOHZ
 Column 3: RNKLXLXYL
 ```
-each of these strings will be subject to frequency analysis.  If we take the standard deviation of all the characters
+each of these strings will be subject to frequency analysis.  If we take the standard deviation of all the character
 frequencies in these strings, we should find that the standard deviation will be higher than similar strings constructed
-using the incorrect key length.  If we conjecture a range of key lengths and keep track of the best std dev score among
+using an incorrect key length. This is because the character frequency distribution should be basically the same as 
+that of english, which is going to be less flat than an enciphered message that used multiple different alphabets to
+in the enciphering process. If we conjecture a range of key lengths and keep track of the best std dev score among
 them, the true key length should give the highest score. 
 
 ### Determining the key.
