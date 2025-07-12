@@ -114,13 +114,13 @@ and 2 ('G' character in the key). This will only be true for key lengths of 3 or
 construct 3 strings from the characters in each of these 3 columns like this:
 ```
 Column 1: DZDWHLHLH  
-Column 2: ZSJCOGOHZ
-Column 3: RNKLXLXYL
+Column 2: ZSJCOGOHZK
+Column 3: RNKLXLXYLK
 ```
 each of these strings will be subject to frequency analysis.  If we take the standard deviation of all the character
 frequencies in these strings, we should find that the standard deviation will be higher than similar strings constructed
 using an incorrect key length. This is because the character frequency distribution should be basically the same as 
-that of english, which is going to be less flat than an enciphered message that used multiple different alphabets to
+that of english, which is going to be less flat than an enciphered message that used multiple different alphabets 
 in the enciphering process. If we conjecture a range of key lengths and keep track of the best std dev score among
 them, the true key length should give the highest score. 
 
