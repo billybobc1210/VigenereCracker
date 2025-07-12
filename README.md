@@ -78,12 +78,12 @@ character at any time, including itself.
 The strategy for cracking the Vigenere cipher is to:
 1) determine the most likely length of the key
 2) once the key length, k,  is known we can break the cipher text into k-length substrings where each character at
-position in in the substring was encrypted using the same alphabet, allowing us to use character frequency analysis
+position p in the substring was encrypted using the same alphabet, allowing us to use character frequency analysis
 on the substring.
 
 ### Determining the length of the key.
 
-Given a cipher text of, that was enciphered with a key of length 3,
+Given a cipher text that was enciphered with a key of length 3, for example,
 
 ```
 DZRZSNDJKWCLHOXLGLHOXLHYHZL
@@ -104,7 +104,7 @@ HOX
 LHY
 HZL
 ```
-We can see that every character in column 0 was enciphered using the 'D' character in the key, meaning that all those
+we can see that every character in column 0 was enciphered using the 'D' character in the key, meaning that all those
 characters came from the same enciphering alphabet in the tabula recta. Similar for column 1 ('O' character in the key) 
 and 2 ('G' character in the key). Therefore if we construct 3 strings from the characters in each of these 3 columns 
 like this:
@@ -132,9 +132,9 @@ iteratively refine our best guess at what the key character is in each position,
 
 ### Testing the "Goodness" of a key
 
-In order to iteratively refine the key that best fits, we need some way to test to see how well of a fit it is.  To
+In order to iteratively refine the key that best fits, we need some way to test to see how good of a fit it is.  To
 do this we use a conjectured key to decipher the cipher text and then test how english-y the generated plain text is
 and give it a numeric score.  The way we do this is to search the plain text for common english bigrams, trigrams and
 quadrigrams and use a formula to give it a numeric score. More weight will be give to trigrams and quadrigrams since
-it is less likely that that those would shou up by random chance then bigrams. The highest score should correspond to
+it is less likely that that these would show up by random chance then bigrams. The highest score should correspond to
 the correct key.
