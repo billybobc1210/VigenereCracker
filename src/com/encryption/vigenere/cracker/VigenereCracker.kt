@@ -40,7 +40,7 @@ class VigenereCracker {
             result.putIfAbsent(c, 0)
         }
 
-        return result.mapValues { it.value.toDouble() / text.length }.entries
+        return result.mapValues { it.value.toDouble() / text.length.toDouble() }.entries
             .sortedByDescending { it.value }
     }
 
@@ -94,7 +94,7 @@ class VigenereCracker {
         // length candidate, then most likely the real key length is the current best key length candidate divided by s.
         val similarToBestScore = mutableSetOf<Int>()
 
-        for (keyLengthCandidate in keyLengthRange.first until bestKeyLengthCandidate ) {
+        for (keyLengthCandidate in keyLengthRange.first .. bestKeyLengthCandidate ) {
             scores[keyLengthCandidate]?.let {
                 if (bestScore / it <= KEY_LENGTH_SCORE_SIMILARITY_FACTOR) {
                     similarToBestScore.add(keyLengthCandidate)
@@ -103,7 +103,7 @@ class VigenereCracker {
         }
 
         var result = bestKeyLengthCandidate
-        val similarityCount = similarToBestScore.size + 1
+        val similarityCount = similarToBestScore.size
 
         if (similarityCount > 1) {
             if (bestKeyLengthCandidate % similarityCount == 0) {
