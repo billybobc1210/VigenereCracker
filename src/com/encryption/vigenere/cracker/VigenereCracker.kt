@@ -2,12 +2,25 @@ package com.encryption.vigenere.cracker
 
 import com.encryption.EncryptionUtil
 import com.encryption.vigenere.encipher.VigenereCipher
+import java.io.File
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 class VigenereSolution(val key: String, val plainText: String)
 
 class VigenereCracker {
+    fun crack(cipherTextFile: File): VigenereSolution {
+        return crack(EncryptionUtil.getNormalizedText(cipherTextFile.readText()))
+    }
+
+    fun crack(cipherText: StringBuilder): VigenereSolution {
+        return crack(cipherText.toString())
+    }
+
+    fun crack(cipherText: StringBuffer): VigenereSolution {
+        return crack(cipherText.toString())
+    }
+
     fun crack(cipherText: String): VigenereSolution {
         val mostLikelyKeyLength = getMostLikelyKeyLength(cipherText, 2..MAX_KEY_LENGTH_CANDIDATE)
         val mostLikelyKey = getMostLikelyKey(cipherText, mostLikelyKeyLength)
