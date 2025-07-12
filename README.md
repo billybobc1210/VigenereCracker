@@ -65,8 +65,8 @@ For each plain text character in the message, use the key character above it to 
 use in the tabula recta to encipher the character.  E.g. the first 'A' in the plain text will be enciphered using 
 the 'D' in "DOG".  So find the row in the table with a heading of 'D' and the column that is headed by the 'A' 
 character.  Where those two intersect is the enciphered character ('D').  The next plain text character is an 'L' 
-enciphered by the 'O' character. The character at the intersection of the 'O' row and the 'L' column is 'Z'. etc, 
-giving a cipher text of:
+enciphered by the 'O' character. The character at the intersection of the 'O' row and the 'L' column is 'Z'. etc. 
+Eventually we end up with the complete cipher text of:
 
 ```
 DZRZSNDJKWCLHOXLGLHOXLHYHZL
