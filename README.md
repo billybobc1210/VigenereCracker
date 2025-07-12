@@ -75,9 +75,9 @@ character at any time, including itself.
 
 The strategy for cracking the Vigenere cipher is to:
 1) determine the most likely length of the key
-2) once the key length, k,  is known we can break the cipher text into k-length substrings where each character at
-position p in the substring was encrypted using the same alphabet, allowing us to use character frequency analysis
-on the substring.
+2) once the key length, k,  is known, we can break the cipher text into k-length substrings where each character at
+position p in the substring was encrypted using the same alphabet. We can then build k substrings using characters
+all from the same enciphering alphabet and use frequency analysis to work backwards to finding the key.
 
 ### Determining the length of the key.
 
