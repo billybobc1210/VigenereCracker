@@ -88,7 +88,7 @@ all from the same enciphering alphabet and use frequency analysis to work backwa
 
 *Note: the example used here is too short to work in practice, but using it here for illustrative purposes.*
 
-Using our example of a text that was enciphered with a key, "DOG, for example
+Using our example of a text that was enciphered with the key, "DOG", for example
 
 ```
 DZRZSNDJKWCLHOXLGLHOXLHYHZL
@@ -110,14 +110,14 @@ HOX
 LHY
 HZL
 ```
-we can see that every character in column 0 was enciphered using the 'D' character in the key, meaning that all those
-characters came from the same enciphering alphabet in the tabula recta. Similar for column 1 ('O' character in the key) 
-and 2 ('G' character in the key). This will only be true for key lengths of 3 (or multiples of 3).  Therefore, if we 
+we can see that every character in column 1 was enciphered using the 'D' character in the key, meaning that all those
+characters came from the same enciphering alphabet in the Tabula Recta. Similar for column 2 ('O' character in the key) 
+and 3 ('G' character in the key). This will only be true for key lengths of 3 (or multiples of 3).  Therefore, if we 
 construct 3 strings from the characters in each of these 3 columns like this:
 ```
 Column 1: DZDWHLHLH  
-Column 2: ZSJCOGOHZK
-Column 3: RNKLXLXYLK
+Column 2: ZSJCOGOHZ
+Column 3: RNKLXLXYL
 ```
 each of these strings will be subject to frequency analysis.  If we take the standard deviation of all the character
 frequencies in these strings, we should find that the standard deviation will be higher than similar strings constructed
