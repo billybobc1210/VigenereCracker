@@ -124,10 +124,10 @@ that of english, which is going to be less flat than an enciphered message that 
 in the enciphering process. If we conjecture a range of key lengths and keep track of the best std dev score among
 them, the true key length should give the highest score. 
 
-### Determining the key.
+### Determining the key
 Using the key length determined in the previous step, we again construct the 3 strings:
 ```
-Column 1: DZDWHLHOX  
+Column 1: DZDWHLHLH  
 Column 2: ZSJCOGOHZ
 Column 3: RNKLXLXYL
 ```
@@ -137,7 +137,7 @@ language. Then we can work backwards to the key character that would have enciph
 iteratively refine our best guess at what the key character is in each position, eventually (hopefully) arriving at the 
 correct key.
 
-### Testing the "Goodness" of a key
+### Testing the "English-ness" of a key
 
 In order to iteratively refine the key that best fits, we need some way to test to see how good of a fit it is.  To
 do this we use a conjectured key to decipher the cipher text and then test how english-y the generated plain text is
