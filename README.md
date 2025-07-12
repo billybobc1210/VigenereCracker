@@ -113,7 +113,7 @@ characters came from the same enciphering alphabet in the tabula recta. Similar 
 and 2 ('G' character in the key). This will only be true for key lengths of 3 or multiples of 3.  Therefore, if we 
 construct 3 strings from the characters in each of these 3 columns like this:
 ```
-Column 1: DZDWHLHOX  
+Column 1: DZDWHLHLH  
 Column 2: ZSJCOGOHZ
 Column 3: RNKLXLXYL
 ```
