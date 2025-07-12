@@ -137,7 +137,7 @@ language. Then we can work backwards to the key character that would have enciph
 iteratively refine our best guess at what the key character is in each position, eventually (hopefully) arriving at the 
 correct key.
 
-### Testing the "English-ness" of a key
+### Testing the "English-ness" of plain text
 
 In order to iteratively refine the key that best fits, we need some way to test to see how good of a fit it is.  To
 do this we use a conjectured key to decipher the cipher text and then test how english-y the generated plain text is
