@@ -11,7 +11,7 @@ Given a plain text message such as:
 ```
 All we have to fear is fear itself.
 ```
-First, we normalize the data by getting getting rid of everything except alphabetic characters and coverting 
+First, we normalize the data by getting getting rid of everything except alphabetic characters and converting 
 to upper case.
 
 ```
