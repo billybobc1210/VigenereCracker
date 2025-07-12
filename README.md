@@ -83,7 +83,7 @@ The strategy for cracking the Vigenere cipher is to:
 position p in the substring was encrypted using the same alphabet. We can then build k substrings using characters
 all from the same enciphering alphabet and use frequency analysis to work backwards to finding the key.
 
-### Determining the length of the key.
+### Determining the length of the key
 
 *Note: the example used here is too short to work in practice, but using it here for illustrative purposes.*
 
@@ -129,7 +129,7 @@ Column 1: DZDWHLHOX
 Column 2: ZSJCOGOHZ
 Column 3: RNKLXLXYL
 ```
-Looking at the most frequent cipher character from each of these strings we can start making conjectures about what the
+Looking at the most frequent cipher character from each of these strings, we can start making conjectures about what the
 plain text character was that it was enciphered from by assuming that it must be a common letter in the english
 language. Then we can work backwards to the key character that would have enciphered it that way. We can then 
 iteratively refine our best guess at what the key character is in each position, eventually (hopefully) arriving at the 
