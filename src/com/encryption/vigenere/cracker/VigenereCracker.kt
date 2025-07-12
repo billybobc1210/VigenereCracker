@@ -58,13 +58,37 @@ class VigenereCracker {
     fun getMostLikelyKeyLength(cipherText: String, keyLengthRange: IntRange): Int {
         var result = 0
         var bestScore = 0.0
+        var scores = mutableMapOf<Int, Double>()
 
-        for (candidateKeyLength in keyLengthRange) {
-            var score = getKeyLengthScore(cipherText, candidateKeyLength)
+        for (keyLengthCandidate in keyLengthRange) {
+            val score = getKeyLengthScore(cipherText, keyLengthCandidate)
+            scores[keyLengthCandidate] = score
 
             if (score > bestScore) {
                 bestScore = score
-                result = candidateKeyLength
+                result = keyLengthCandidate
+            }
+        }
+
+        var factors = EncryptionUtil.getIntegerFactors(result, false)
+
+        for (factor in factors) {
+            var isLikeyTrueKeyLength = true
+
+            for (i in factor until result step factor) {
+                scores[i]?.let {
+                    if (bestScore / it > 1.1) {
+                        isLikeyTrueKeyLength = false
+                    }
+                }
+
+                if (!isLikeyTrueKeyLength) {
+                    break;
+                }
+            }
+
+            if (isLikeyTrueKeyLength) {
+                return factor
             }
         }
 
