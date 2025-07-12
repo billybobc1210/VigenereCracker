@@ -96,7 +96,7 @@ DZRZSNDJKWCLHOXLGLHOXLHYHZL
 if we conjecture a key length of 3 and rewrite the cipher text like this:
 
 ```
-DOG <- KEY
+??? <- KEY
 ---
 DZR
 ZSN
