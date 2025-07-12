@@ -9,7 +9,7 @@ class VigenereSolution(val key: String, val plainText: String)
 
 class VigenereCracker {
     fun crack(cipherText: String): VigenereSolution {
-        val mostLikelyKeyLength = getMostLikelyKeyLength(cipherText, 2..15)
+        val mostLikelyKeyLength = getMostLikelyKeyLength(cipherText, 2..MAX_KEY_LENGTH_CANDIDATE)
         val mostLikelyKey = getMostLikelyKey(cipherText, mostLikelyKeyLength)
         val vigenereCipher = VigenereCipher()
         val mostLikelyPlainText = vigenereCipher.decipher(cipherText, mostLikelyKey)
@@ -56,7 +56,7 @@ class VigenereCracker {
     }
 
     fun getMostLikelyKeyLength(cipherText: String, keyLengthRange: IntRange): Int {
-        var result = 0
+        var bestKeyLengthCandidate = 0
         var bestScore = 0.0
         var scores = mutableMapOf<Int, Double>()
 
@@ -66,37 +66,41 @@ class VigenereCracker {
 
             if (score > bestScore) {
                 bestScore = score
-                result = keyLengthCandidate
+                bestKeyLengthCandidate = keyLengthCandidate
             }
         }
 
         // Key length scores tend to favor high key lengths over low ones since the scores are based off of the std
         // deviation of the frequency maps on the slices we take from the cipher text.  When we have high key lengths,
-        // the slices we take from the cipher text are shorter so they tend to have more anomalous frequencies (e.g.
-        // more 0-occurrence characters) which makes their std devs higher.  So even if the actual key is length 3,
-        // we might have a result of 15 at this point.  So we're going to go thru the factors of 15 (3 and 5) and we're
-        // going to check the scores for 3, 6, 9 and 12 first.  If all of these have similar scores to the high score
-        // for 15, then most likely the key length is actually 3.  If those are not all similar, we'll do the same
-        // thing for 5 and 10. If not all of those are similar then the key length most likely really is 15.
-        var factors = EncryptionUtil.getIntegerFactors(result, false)
+        // the slices we take from the cipher text are shorter so they tend to have more anomalous frequency
+        // distributions (e.g. more 0-occurrence characters) which makes their std devs higher.  So even if the actual
+        // key is length 3, for example, we might have a best key length candidate at this point that is some multiple
+        // of 3, for example, 15. When this happens we tend to have similar scores to the high score for the real key
+        // length and all its multiples (e.g. 6, 9 and 12). To counter this, we find all the key lengths that have
+        // a similar score to the high score.  If the number of similar scores, s, is a factor of the current best key
+        // length candidate, then most likely the real key length is the current best key length candidate divided by s.
+        val similarToBestScore = mutableSetOf<Int>()
 
-        for (factor in factors) {
-            var isLikeyTrueKeyLength = true
-
-            for (i in factor until result step factor) {
-                scores[i]?.let {
-                    if (bestScore / it > 1.1) {
-                        isLikeyTrueKeyLength = false
-                    }
-                }
-
-                if (!isLikeyTrueKeyLength) {
-                    break;
+        for (keyLengthCandidate in keyLengthRange.first until bestKeyLengthCandidate ) {
+            scores[keyLengthCandidate]?.let {
+                if (bestScore / it <= KEY_LENGTH_SCORE_SIMILARITY_FACTOR) {
+                    similarToBestScore.add(keyLengthCandidate)
                 }
             }
+        }
 
-            if (isLikeyTrueKeyLength) {
-                return factor
+        var result = bestKeyLengthCandidate
+        val similarityCount = similarToBestScore.size + 1
+
+        if (similarityCount > 1) {
+            if (bestKeyLengthCandidate % similarityCount == 0) {
+                bestKeyLengthCandidate = bestKeyLengthCandidate / similarityCount
+
+                // One last check to make sure that all the key lengths that gave similar scores are also
+                // multiples of the new best key length candidate.
+                if (similarToBestScore.all { it % bestKeyLengthCandidate == 0 }) {
+                    result = bestKeyLengthCandidate
+                }
             }
         }
 
@@ -133,29 +137,29 @@ class VigenereCracker {
         while (prevBestKey != currentBestKey) {
             prevBestKey = currentBestKey
 
-            // Loop through all key char positions, testing all key char candidates at 'keyCharPosition' and
-            // updating 'bestKeyCharCandidates[keyCharPosition]' when we find a new key char candidate at
+            // Loop through all key char positions, testing all key char candidates at 'varyingKeyCharPosition' and
+            // updating 'bestKeyCharCandidates[varyingKeyCharPosition]' when we find a new key char candidate at
             // that position that yields better plain text results than the previous best.
-            for (keyCharPosition in 0 until keyLength) {
+            for (varyingKeyCharPosition in 0 until keyLength) {
                 // Use 'bestKeyCharCandidates[key char position]' to build the key for all key char
-                // positions other than 'keyCharPosition'.
+                // positions other than 'varyingKeyCharPosition'.
                 val startOfKeyBuilder = StringBuilder()
 
-                for (startOfKeyCharPosition in 0 until keyCharPosition) {
+                for (startOfKeyCharPosition in 0 until varyingKeyCharPosition) {
                     startOfKeyBuilder.append(bestKeyCharCandidates[startOfKeyCharPosition])
                 }
 
                 val endOfKeyBuilder = StringBuilder()
 
-                for (endOfKeyCharPosition in keyCharPosition + 1 until keyLength) {
+                for (endOfKeyCharPosition in varyingKeyCharPosition + 1 until keyLength) {
                     endOfKeyBuilder.append(bestKeyCharCandidates[endOfKeyCharPosition])
                 }
 
                 var bestEnglishScore = 0.0
 
-                // Loop thru all key char candidates at 'keyCharPosition', using each of them to build a new key
+                // Loop thru all key char candidates at 'varyingKeyCharPosition', using each of them to build a new key
                 // and testing to find the best key char candidate at this position.
-                for (keyCharCandidate in keyCharCandidatesByKeyCharPosition[keyCharPosition]) {
+                for (keyCharCandidate in keyCharCandidatesByKeyCharPosition[varyingKeyCharPosition]) {
                     val completeKeyBuilder = StringBuilder(startOfKeyBuilder)
                         .append(keyCharCandidate)
                         .append(endOfKeyBuilder)
@@ -165,10 +169,10 @@ class VigenereCracker {
 
                     if (englishScore > bestEnglishScore) {
                         // Found better character from key char candidates at this key character position,
-                        // so we update 'bestKeyCharCandidates[keyCharPosition]' with the new best key char
+                        // so we update 'bestKeyCharCandidates[varyingKeyCharPosition]' with the new best key char
                         // candidate.
                         bestEnglishScore = englishScore
-                        bestKeyCharCandidates[keyCharPosition] = keyCharCandidate
+                        bestKeyCharCandidates[varyingKeyCharPosition] = keyCharCandidate
                     }
                 }
             }
@@ -180,9 +184,9 @@ class VigenereCracker {
     }
 
     fun getEnglishPlainTextScore(plainText: String): Double {
-        return ((1.0 * getEnglishNgramCount(plainText, 2).toDouble()) +
-                (2.0 * getEnglishNgramCount(plainText, 3).toDouble()) +
-                (4.0 * getEnglishNgramCount(plainText, 4).toDouble())) /
+        return ((BIGRAM_WEIGTH * getEnglishNgramCount(plainText, 2).toDouble()) +
+                (TRIGRAM_WEIGTH * getEnglishNgramCount(plainText, 3).toDouble()) +
+                (QUADRIGRAM_WEIGTH * getEnglishNgramCount(plainText, 4).toDouble())) /
                 plainText.length.toDouble()
     }
 
@@ -218,18 +222,24 @@ class VigenereCracker {
     }
 
     companion object {
+        val MAX_KEY_LENGTH_CANDIDATE = 15
+        val KEY_LENGTH_SCORE_SIMILARITY_FACTOR = 1.1
+
         val TOP_10_ENGLISH_LETTERS = listOf(
             'E', 'T', 'A', 'O', 'I', 'N', 'S', 'H', 'R', 'D'
         )
 
+        val BIGRAM_WEIGTH = 1.0
         val TOP_10_ENGLISH_BIGRAMS = setOf(
             "TH", "HE", "IN", "ER", "AN", "RE", "ND", "AT", "ON", "NT",
         )
 
+        val TRIGRAM_WEIGTH = 2.0
         val TOP_10_ENGLISH_TRIGRAMS = setOf(
             "THE", "AND", "ING", "HER", "ENG", "ION", "THA", "NTH", "INT", "ERE",
         )
 
+        val QUADRIGRAM_WEIGTH = 4.0
         val TOP_10_ENGLISH_QUADRIGRAMS = setOf(
             "TION", "THER", "WITH", "MENT", "IONS", "HERE", "THAT", "OULD", "IGHT", "HAVE",
         )
