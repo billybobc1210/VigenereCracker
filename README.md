@@ -1,4 +1,4 @@
-# Vigener Cipher Cracker
+# Vigenere Cipher Cracker
 
 This is a program for cracking a message enciphered using a Vigenere Cipher.  The class for doing the cracking is called
 VigenereCracker.  It also includes a class, VigenereCipher,for enciphering and deciphering such messages with a known 
