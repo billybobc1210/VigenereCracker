@@ -133,6 +133,6 @@ iteratively refine our best guess at what the key character is in each position,
 In order to iteratively refine the key that best fits, we need some way to test to see how good of a fit it is.  To
 do this we use a conjectured key to decipher the cipher text and then test how english-y the generated plain text is
 and give it a numeric score.  The way we do this is to search the plain text for common english bigrams, trigrams and
-quadrigrams and use a formula to give it a numeric score. More weight will be give to trigrams and quadrigrams since
-it is less likely that that these would show up by random chance then bigrams. The highest score should correspond to
+quadrigrams and use a formula to give it a numeric score. More weight will be given to trigrams and quadrigrams since
+it is less likely that that these would show up by random chance than bigrams. The highest score should correspond to
 the correct key.
