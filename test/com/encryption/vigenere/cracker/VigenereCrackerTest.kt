@@ -1,10 +1,13 @@
 package com.encryption.vigenere.cracker
 
 import com.encryption.EncryptionUtil
+import com.encryption.EncryptionUtil.Companion.collapseRepeatedString
 import com.encryption.vigenere.encipher.VigenereCipher
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.lang.Math.*
+import kotlin.math.log10
 
 class VigenereCrackerTest {
     companion object {
@@ -40,47 +43,47 @@ class VigenereCrackerTest {
                 val cipherText = vigenereCipher.encipher(normalizedPlainText, key)
                 val vigenereCracker = VigenereCracker()
                 val solution = vigenereCracker.crack(cipherText)
-                assertEquals(EncryptionUtil.collapseRepeatedString(key), solution.key)
+                assertEquals(collapseRepeatedString(key), solution.key)
                 assertEquals(normalizedPlainText, solution.plainText)
             }
         }
     }
 
     @Test
-    fun falloverTest() {
+    fun tcoeFalloverTest() {
+        falloverTest(File("tcoe.txt"), 1328, 100)
+    }
+
+    @Test
+    fun atotcFalloverTest() {
+        falloverTest(File("atotc.txt"), 731, 10)
+    }
+
+    @Test
+    fun hobbitFalloverTest() {
+        falloverTest(File("hobbit.txt"), 962, 10)
+    }
+
+    fun falloverTest(file: File, expectedFallover: Int, dec: Int) {
         val vigenereCipher = VigenereCipher()
         val vigenereCracker = VigenereCracker()
 
-        var minPlainTextSize = Int.MAX_VALUE
+        val plainText = EncryptionUtil.getNormalizedText(file.readText())
+        var plainTextLen = plainText.length
 
-        for (fileName in TEST_FILE_NAMES) {
-            val plainText = File(fileName).readText()
-            val normalizedPlainText = EncryptionUtil.getNormalizedText(plainText)
-            if (normalizedPlainText.length < minPlainTextSize) {
-                 minPlainTextSize = normalizedPlainText.length
+        while (plainTextLen > 0) {
+            val normalizedPlainText = EncryptionUtil.getNormalizedText(plainText).substring(0, plainTextLen)
+            plainTextLen -= dec
+
+//            println("Filename: ${file.name}, key: $WORST_CASE_KEY, plane text len: $plainTextLen")
+            val cipherText = vigenereCipher.encipher(normalizedPlainText, WORST_CASE_KEY)
+            val solution = vigenereCracker.crack(cipherText)
+            val expected = collapseRepeatedString(WORST_CASE_KEY)
+            val actual = solution.key
+            if (actual != expected) {
+                assert(plainTextLen <= expectedFallover)
+                break
             }
-        }
-
-        for (fileName in TEST_FILE_NAMES) {
-            var plainTextLen = minPlainTextSize
-            val plainText = File(fileName).readText()
-
-            while (plainTextLen > 0) {
-                val normalizedPlainText = EncryptionUtil.getNormalizedText(plainText).substring(0, plainTextLen)
-                plainTextLen -= 10
-
-                println("Filename: $fileName, key: $WORST_CASE_KEY, plane text len: $plainTextLen")
-                val cipherText = vigenereCipher.encipher(normalizedPlainText, WORST_CASE_KEY)
-                val solution = vigenereCracker.crack(cipherText)
-                val expected = EncryptionUtil.collapseRepeatedString(WORST_CASE_KEY)
-                val actual = solution.key
-                if (actual != expected) {
-                    FALLOVER_BY_TEST_FILE[fileName]?.let {
-                        assert(plainTextLen <= it)
-                    }
-                    break
-                }
-        }
         }
     }
 }
