@@ -11,7 +11,7 @@ Given a plain text message such as:
 ```
 All we have to fear is fear itself.
 ```
-First, we normalize the data by getting getting rid of everything except alphabetic characters and converting 
+First, we normalize the data by getting rid of everything except alphabetic characters and converting 
 to upper case.
 
 ```
@@ -62,7 +62,7 @@ Use the following table called the Tabula Recta to encipher each character.
  +--- key characters
 ```
 For each plain text character in the message, use the key character above it to find the correct row to
-use in the tabula recta to encipher the character.  E.g. the first 'A' in the plain text will be enciphered using 
+use in the Tabula Recta to encipher the character.  E.g. the first 'A' in the plain text will be enciphered using 
 the 'D' in "DOG".  So find the row in the table with a heading of 'D' and the column that is headed by the 'A' 
 character.  Where those two intersect is the enciphered character ('D').  The next plain text character is an 'L' 
 enciphered by the 'O' character. The character at the intersection of the 'O' row and the 'L' column is 'Z'. etc. 
