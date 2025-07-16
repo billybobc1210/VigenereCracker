@@ -61,7 +61,7 @@ class VigenereCrackerTest {
         val vigenereCracker = VigenereCracker()
 
         val plainText = EncryptionUtil.getNormalizedText(file.readText())
-        var plainTextLen = expectedFallover + 1
+        var plainTextLen = expectedFallover + 100
 
         while (plainTextLen > 0) {
             val normalizedPlainText = EncryptionUtil.getNormalizedText(plainText).substring(0, plainTextLen)
