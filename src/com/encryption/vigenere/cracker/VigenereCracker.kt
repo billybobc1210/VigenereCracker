@@ -3,6 +3,7 @@ package com.encryption.vigenere.cracker
 import com.encryption.EncryptionUtil
 import com.encryption.vigenere.encipher.VigenereCipher
 import java.io.File
+import kotlin.math.log10
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -137,7 +138,7 @@ class VigenereCracker {
 
             val keyCharCandidates = mutableListOf<Char>()
 
-            for (c in TOP_10_ENGLISH_LETTERS.map { it[0] } ) {
+            for (c in TOP_10_ENGLISH_LETTERS.map { it.key[0] } ) {
                 getKeyCharForSpeculatedPlainChar(mostFrequentCipherChar, c)?.let { keyCharCandidates.add(it) }
             }
 
@@ -175,7 +176,7 @@ class VigenereCracker {
                     endOfKeyBuilder.append(bestKeyCharCandidates[endOfKeyCharPosition])
                 }
 
-                var bestEnglishScore = 0.0
+                var bestEnglishScore = Double.NEGATIVE_INFINITY
 
                 // Loop thru all key char candidates at 'varyingKeyCharPosition', using each of them to build a new key
                 // and testing to find the best key char candidate at this position.
@@ -214,16 +215,13 @@ class VigenereCracker {
     fun getEnglishNgramScore(plainText: String, n: Int): Double {
         var result = 0.0
 
-        TOP_10_ENGLISH_NGRAMS[n]?.let { nGramList ->
-            for (i in 0 until plainText.length - n + 1) {
-                val nGram = plainText.substring(i, i + n)
-                for (i in nGramList.indices) {
-                    if (nGram == nGramList[i]) {
-                        result += (nGramList.size - i).toDouble() / nGramList.size.toDouble()
-                        break
-                    }
-                }
+        TOP_10_ENGLISH_NGRAMS[n]?.let {
+            val ngrams = (0..plainText.length - n).map { plainText.substring(it, it + n).uppercase() }
+            val logProbabilities = ngrams.map { trigram ->
+                log10(it.getOrDefault(trigram, 1e-7))
             }
+
+            result = logProbabilities.sum() / ngrams.size.toDouble()
         }
 
         return result
@@ -248,27 +246,63 @@ class VigenereCracker {
     companion object {
         val MAX_KEY_LENGTH_CANDIDATE = 15
 
-        val CHAR_WEIGTH = 1.0
-        val TOP_10_ENGLISH_LETTERS = listOf(
-            "E", "T", "A", "O", "I", "N", "S", "H", "R", "D"
+        val CHAR_WEIGTH = 0.5
+        val TOP_10_ENGLISH_LETTERS: Map<String, Double> = mapOf(
+            "E" to 0.127,
+            "T" to 0.091,
+            "A" to 0.082,
+            "O" to 0.075,
+            "I" to 0.070,
+            "N" to 0.067,
+            "S" to 0.063,
+            "H" to 0.061,
+            "R" to 0.060,
+            "D" to 0.043
         )
 
-        val BIGRAM_WEIGTH = 1.1
-        val TOP_10_ENGLISH_BIGRAMS = listOf(
-            "TH", "HE", "IN", "ER", "AN", "RE", "ND", "AT", "ON", "NT",
+        val BIGRAM_WEIGTH = 0.3
+        val TOP_10_ENGLISH_BIGRAMS: Map<String, Double> = mapOf(
+            "TH" to 0.0356,
+            "HE" to 0.0307,
+            "IN" to 0.0243,
+            "ER" to 0.0205,
+            "AN" to 0.0199,
+            "RE" to 0.0185,
+            "ND" to 0.0172,
+            "ON" to 0.0165,
+            "EN" to 0.0162,
+            "AT" to 0.0149
         )
 
-        val TRIGRAM_WEIGTH = 1.2
-        val TOP_10_ENGLISH_TRIGRAMS = listOf(
-            "THE", "AND", "ING", "HER", "ENG", "ION", "THA", "NTH", "INT", "ERE",
+        val TRIGRAM_WEIGTH = 0.15
+        val TOP_10_ENGLISH_TRIGRAMS: Map<String, Double> = mapOf(
+            "THE" to 0.0181,
+            "AND" to 0.0073,
+            "ING" to 0.0072,
+            "HER" to 0.0042,
+            "ERE" to 0.0031,
+            "ENT" to 0.0028,
+            "THA" to 0.0027,
+            "NTH" to 0.0023,
+            "WAS" to 0.0022,
+            "ETH" to 0.0021
         )
 
-        val QUADRIGRAM_WEIGTH = 1.4
-        val TOP_10_ENGLISH_QUADRIGRAMS = listOf(
-            "TION", "THER", "WITH", "MENT", "IONS", "HERE", "THAT", "OULD", "IGHT", "HAVE",
+        val QUADRIGRAM_WEIGTH = 0.05
+        val TOP_10_ENGLISH_QUADRIGRAMS: Map<String, Double> = mapOf(
+            "THER" to 0.0031,
+            "THAT" to 0.0026,
+            "WITH" to 0.0024,
+            "HERE" to 0.0021,
+            "HATI" to 0.0018,
+            "TION" to 0.0017,
+            "EVER" to 0.0016,
+            "FROM" to 0.0015,
+            "THIS" to 0.0014,
+            "THEY" to 0.0013
         )
 
-        val TOP_10_ENGLISH_NGRAMS = mapOf(
+        val TOP_10_ENGLISH_NGRAMS: Map<Int, Map<String, Double>> = mapOf(
             1 to TOP_10_ENGLISH_LETTERS,
             2 to TOP_10_ENGLISH_BIGRAMS,
             3 to TOP_10_ENGLISH_TRIGRAMS,

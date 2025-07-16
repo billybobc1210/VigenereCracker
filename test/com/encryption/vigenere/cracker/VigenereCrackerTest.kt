@@ -48,12 +48,36 @@ class VigenereCrackerTest {
 
     @Test
     fun atotcFalloverTest() {
-        falloverTest(File("atotc.txt"), 434)
+        falloverTest(File("atotc.txt"), 276)
     }
 
     @Test
     fun hobbitFalloverTest() {
         falloverTest(File("hobbit.txt"), 962)
+    }
+
+    @Test
+    fun englishScoreTest() {
+        val vigenereCipher = VigenereCipher()
+        val vigenereCracker = VigenereCracker()
+        val plainText = EncryptionUtil.getNormalizedText(File("hobbit.txt").readText())
+        val key = "GANDALFTHEGREY"
+        val cipherText = vigenereCipher.encipher(plainText, key)
+        val plainTextEnglishScore = vigenereCracker.getEnglishPlainTextScore(plainText)
+        val slightlyIncorrectKey = "GANDWXFTHEGREY"
+        val slightlyIncorrectPlainText = vigenereCipher.decipher(cipherText, slightlyIncorrectKey)
+        val slightlyIncorrectEnglishScore = vigenereCracker.getEnglishPlainTextScore(slightlyIncorrectPlainText)
+        val veryIncorrectKey = "LSICKGYS"
+        val veryIncorrectPlainText = vigenereCipher.decipher(cipherText, veryIncorrectKey)
+        val veryIncorrectEnglishScore = vigenereCracker.getEnglishPlainTextScore(veryIncorrectPlainText)
+        assert(plainTextEnglishScore > slightlyIncorrectEnglishScore)
+        assert(slightlyIncorrectEnglishScore > veryIncorrectEnglishScore)
+//        println("Plain text, english score: $plainTextEnglishScore")
+//        println(plainText)
+//        println("Slightly incorrect plain text, english score: $slightlyIncorrectEnglishScore")
+//        println(slightlyIncorrectPlainText)
+//        println("Very incorrect plain text, english score: $veryIncorrectEnglishScore")
+//        println(veryIncorrectPlainText)
     }
 
     fun falloverTest(file: File, expectedFallover: Int) {
