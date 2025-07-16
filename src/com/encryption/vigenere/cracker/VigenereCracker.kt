@@ -137,7 +137,7 @@ class VigenereCracker {
 
             val keyCharCandidates = mutableListOf<Char>()
 
-            for (c in TOP_10_ENGLISH_LETTERS) {
+            for (c in TOP_10_ENGLISH_LETTERS.map { it[0] } ) {
                 getKeyCharForSpeculatedPlainChar(mostFrequentCipherChar, c)?.let { keyCharCandidates.add(it) }
             }
 
@@ -204,20 +204,24 @@ class VigenereCracker {
     }
 
     fun getEnglishPlainTextScore(plainText: String): Double {
-        return ((BIGRAM_WEIGTH * getEnglishNgramCount(plainText, 2).toDouble()) +
-                (TRIGRAM_WEIGTH * getEnglishNgramCount(plainText, 3).toDouble()) +
-                (QUADRIGRAM_WEIGTH * getEnglishNgramCount(plainText, 4).toDouble())) /
+        return (getEnglishNgramScore(plainText, 1) +
+                (BIGRAM_WEIGTH * getEnglishNgramScore(plainText, 2)) +
+                (TRIGRAM_WEIGTH * getEnglishNgramScore(plainText, 3)) +
+                (QUADRIGRAM_WEIGTH * getEnglishNgramScore(plainText, 4))) /
                 plainText.length.toDouble()
     }
 
-    fun getEnglishNgramCount(plainText: String, n: Int): Int {
-        var result = 0
+    fun getEnglishNgramScore(plainText: String, n: Int): Double {
+        var result = 0.0
 
-        TOP_10_ENGLISH_NGRAMS[n]?.let { nGramSet ->
+        TOP_10_ENGLISH_NGRAMS[n]?.let { nGramList ->
             for (i in 0 until plainText.length - n + 1) {
                 val nGram = plainText.substring(i, i + n)
-                if (nGram in nGramSet) {
-                    result++
+                for (i in nGramList.indices) {
+                    if (nGram == nGramList[i]) {
+                        result += (nGramList.size - i).toDouble() / nGramList.size.toDouble()
+                        break
+                    }
                 }
             }
         }
@@ -245,25 +249,26 @@ class VigenereCracker {
         val MAX_KEY_LENGTH_CANDIDATE = 15
 
         val TOP_10_ENGLISH_LETTERS = listOf(
-            'E', 'T', 'A', 'O', 'I', 'N', 'S', 'H', 'R', 'D'
+            "E", "T", "A", "O", "I", "N", "S", "H", "R", "D"
         )
 
         val BIGRAM_WEIGTH = 1.0
-        val TOP_10_ENGLISH_BIGRAMS = setOf(
+        val TOP_10_ENGLISH_BIGRAMS = listOf(
             "TH", "HE", "IN", "ER", "AN", "RE", "ND", "AT", "ON", "NT",
         )
 
         val TRIGRAM_WEIGTH = 2.0
-        val TOP_10_ENGLISH_TRIGRAMS = setOf(
+        val TOP_10_ENGLISH_TRIGRAMS = listOf(
             "THE", "AND", "ING", "HER", "ENG", "ION", "THA", "NTH", "INT", "ERE",
         )
 
         val QUADRIGRAM_WEIGTH = 4.0
-        val TOP_10_ENGLISH_QUADRIGRAMS = setOf(
+        val TOP_10_ENGLISH_QUADRIGRAMS = listOf(
             "TION", "THER", "WITH", "MENT", "IONS", "HERE", "THAT", "OULD", "IGHT", "HAVE",
         )
 
         val TOP_10_ENGLISH_NGRAMS = mapOf(
+            1 to TOP_10_ENGLISH_LETTERS,
             2 to TOP_10_ENGLISH_BIGRAMS,
             3 to TOP_10_ENGLISH_TRIGRAMS,
             4 to TOP_10_ENGLISH_QUADRIGRAMS

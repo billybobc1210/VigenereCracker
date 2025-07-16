@@ -48,7 +48,7 @@ class VigenereCrackerTest {
 
     @Test
     fun atotcFalloverTest() {
-        falloverTest(File("atotc.txt"), 731)
+        falloverTest(File("atotc.txt"), 434)
     }
 
     @Test
