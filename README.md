@@ -124,7 +124,11 @@ frequencies in these strings, we should find that the standard deviation will be
 using an incorrect key length. This is because the character frequency distribution should be basically the same as 
 that of english, which is going to be less flat than an enciphered message that used multiple different alphabets 
 in the enciphering process. If we conjecture a range of key lengths and keep track of the best std dev score among
-them, the true key length should give the highest score. 
+them, the true key length should give the highest score.
+
+*Note: This is not typically how the key length is determined.  Usually the Kasiski Test or the Index of Coincidence
+is used.  This  is just what I came up with before I knew that and it seems to work okay so, but may fall over if I
+start allowing longer keys. Leaving it alone for now and will revisit later.*
 
 ### Determining the key
 Using the key length determined in the previous step, we again construct the 3 strings:
