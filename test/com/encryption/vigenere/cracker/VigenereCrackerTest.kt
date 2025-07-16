@@ -6,8 +6,6 @@ import com.encryption.vigenere.encipher.VigenereCipher
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.lang.Math.*
-import kotlin.math.log10
 
 class VigenereCrackerTest {
     companion object {
@@ -23,12 +21,6 @@ class VigenereCrackerTest {
             "tcoe.txt",
             "atotc.txt",
             "hobbit.txt",
-        )
-
-        val FALLOVER_BY_TEST_FILE = mapOf(
-            "tcoe.txt" to 1328,
-            "atotc.txt" to 731,
-            "hobbit.txt" to 962,
         )
     }
 
