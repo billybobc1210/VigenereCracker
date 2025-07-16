@@ -71,6 +71,7 @@ class VigenereCracker {
     fun getMostLikelyKeyLength(cipherText: String, keyLengthRange: IntRange): Int {
         var bestKeyLengthCandidate = 0
         var bestScore = 0.0
+        var worstScore = Double.MAX_VALUE
         var scores = mutableMapOf<Int, Double>()
 
         for (keyLengthCandidate in keyLengthRange) {
@@ -80,6 +81,10 @@ class VigenereCracker {
             if (score > bestScore) {
                 bestScore = score
                 bestKeyLengthCandidate = keyLengthCandidate
+            }
+
+            if (score < worstScore) {
+                worstScore = score
             }
         }
 
@@ -92,11 +97,13 @@ class VigenereCracker {
         // length and all its multiples (e.g. 6, 9 and 12). To counter this, we find all the key lengths that have
         // a similar score to the high score.  If the number of similar scores, s, is a factor of the current best key
         // length candidate, then most likely the real key length is the current best key length candidate divided by s.
+        val bestToWorstCaseRatio = (bestScore / worstScore)
+        val keyLengthSimilarityRatio =  bestToWorstCaseRatio * (1.0 / (keyLengthRange.last - keyLengthRange.first + 1).toDouble())
         val similarToBestScore = mutableSetOf<Int>()
 
-        for (keyLengthCandidate in keyLengthRange.first .. bestKeyLengthCandidate ) {
+        for (keyLengthCandidate in keyLengthRange.first .. bestKeyLengthCandidate) {
             scores[keyLengthCandidate]?.let {
-                if (bestScore / it <= KEY_LENGTH_SCORE_SIMILARITY_FACTOR) {
+                if (bestScore / it <= keyLengthSimilarityRatio) {
                     similarToBestScore.add(keyLengthCandidate)
                 }
             }
@@ -236,7 +243,6 @@ class VigenereCracker {
 
     companion object {
         val MAX_KEY_LENGTH_CANDIDATE = 15
-        val KEY_LENGTH_SCORE_SIMILARITY_FACTOR = 1.1
 
         val TOP_10_ENGLISH_LETTERS = listOf(
             'E', 'T', 'A', 'O', 'I', 'N', 'S', 'H', 'R', 'D'
