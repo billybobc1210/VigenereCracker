@@ -75,13 +75,16 @@ class VigenereCrackerTest {
             val normalizedPlainText = EncryptionUtil.getNormalizedText(plainText).substring(0, plainTextLen)
             plainTextLen--
 
-            println("Filename: ${file.name}, key: $WORST_CASE_KEY, plane text len: $plainTextLen")
+//            println("Filename: ${file.name}, key: $WORST_CASE_KEY, plane text len: $plainTextLen")
             val cipherText = vigenereCipher.encipher(normalizedPlainText, WORST_CASE_KEY)
             val solution = vigenereCracker.crack(cipherText)
             val expected = collapseRepeatedString(WORST_CASE_KEY)
             val actual = solution.key
             if (actual != expected) {
                 assert(plainTextLen <= expectedFallover)
+                if (plainTextLen < expectedFallover) {
+                    println("Improved fallover point: File name: ${file.name}, key: $WORST_CASE_KEY, plane text len: $plainTextLen")
+                }
                 break
             }
         }
