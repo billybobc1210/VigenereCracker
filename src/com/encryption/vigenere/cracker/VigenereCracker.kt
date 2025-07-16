@@ -204,7 +204,7 @@ class VigenereCracker {
     }
 
     fun getEnglishPlainTextScore(plainText: String): Double {
-        return (getEnglishNgramScore(plainText, 1) +
+        return ((CHAR_WEIGTH * getEnglishNgramScore(plainText, 1)) +
                 (BIGRAM_WEIGTH * getEnglishNgramScore(plainText, 2)) +
                 (TRIGRAM_WEIGTH * getEnglishNgramScore(plainText, 3)) +
                 (QUADRIGRAM_WEIGTH * getEnglishNgramScore(plainText, 4))) /
@@ -248,21 +248,22 @@ class VigenereCracker {
     companion object {
         val MAX_KEY_LENGTH_CANDIDATE = 15
 
+        val CHAR_WEIGTH = 1.0
         val TOP_10_ENGLISH_LETTERS = listOf(
             "E", "T", "A", "O", "I", "N", "S", "H", "R", "D"
         )
 
-        val BIGRAM_WEIGTH = 1.0
+        val BIGRAM_WEIGTH = 1.1
         val TOP_10_ENGLISH_BIGRAMS = listOf(
             "TH", "HE", "IN", "ER", "AN", "RE", "ND", "AT", "ON", "NT",
         )
 
-        val TRIGRAM_WEIGTH = 2.0
+        val TRIGRAM_WEIGTH = 1.2
         val TOP_10_ENGLISH_TRIGRAMS = listOf(
             "THE", "AND", "ING", "HER", "ENG", "ION", "THA", "NTH", "INT", "ERE",
         )
 
-        val QUADRIGRAM_WEIGTH = 4.0
+        val QUADRIGRAM_WEIGTH = 1.4
         val TOP_10_ENGLISH_QUADRIGRAMS = listOf(
             "TION", "THER", "WITH", "MENT", "IONS", "HERE", "THAT", "OULD", "IGHT", "HAVE",
         )
