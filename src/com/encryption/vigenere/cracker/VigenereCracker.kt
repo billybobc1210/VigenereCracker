@@ -31,7 +31,7 @@ class VigenereCracker {
         return VigenereSolution(mostLikelyKey, mostLikelyPlainText)
     }
 
-    fun getCharFrequencyMap(text: String): List<Map.Entry<Char, Double>> {
+    private fun getCharFrequencyMap(text: String): List<Map.Entry<Char, Double>> {
         val result = text
             .groupingBy { it }
             .eachCount()
@@ -45,7 +45,7 @@ class VigenereCracker {
             .sortedByDescending { it.value }
     }
 
-    fun getStandardDeviation(frequencyMap: List<Map.Entry<Char, Double>>): Double {
+    private fun getStandardDeviation(frequencyMap: List<Map.Entry<Char, Double>>): Double {
         val values = frequencyMap.map { it.value }
         val mean = values.average()
         val variance = values.sumOf { (it - mean).pow(2) } / values.size
@@ -53,11 +53,11 @@ class VigenereCracker {
         return sqrt(variance)
     }
 
-    fun buildStringFromEveryNthChar(text: String, n: Int, offset: Int = 0): String {
+    private fun buildStringFromEveryNthChar(text: String, n: Int, offset: Int = 0): String {
         return text.substring(offset).filterIndexed { index, _ -> index % n == 0 }
     }
 
-    fun getKeyLengthScore(cipherText: String, keyLength: Int): Double {
+    private fun getKeyLengthScore(cipherText: String, keyLength: Int): Double {
         var stdDevSum = 0.0
 
         for (keyCharPosition in 0 until keyLength) {
@@ -69,7 +69,7 @@ class VigenereCracker {
         return stdDevSum / keyLength.toDouble()
     }
 
-    fun getMostLikelyKeyLength(cipherText: String, keyLengthRange: IntRange): Int {
+    private fun getMostLikelyKeyLength(cipherText: String, keyLengthRange: IntRange): Int {
         var bestKeyLengthCandidate = 0
         var bestScore = 0.0
         var worstScore = Double.MAX_VALUE
@@ -128,7 +128,7 @@ class VigenereCracker {
         return result
     }
 
-    fun getMostLikelyKey(cipherText: String, keyLength: Int): String {
+    private fun getMostLikelyKey(cipherText: String, keyLength: Int): String {
         val keyCharCandidatesByKeyCharPosition = mutableListOf<List<Char>>()
 
         for (keyCharPosition in 0 until keyLength) {
@@ -204,7 +204,7 @@ class VigenereCracker {
         return EncryptionUtil.collapseRepeatedString(currentBestKey)
     }
 
-    fun getEnglishPlainTextScore(plainText: String): Double {
+    internal fun getEnglishPlainTextScore(plainText: String): Double {
         return ((CHAR_WEIGTH * getEnglishNgramScore(plainText, 1)) +
                 (BIGRAM_WEIGTH * getEnglishNgramScore(plainText, 2)) +
                 (TRIGRAM_WEIGTH * getEnglishNgramScore(plainText, 3)) +
@@ -212,7 +212,7 @@ class VigenereCracker {
                 plainText.length.toDouble()
     }
 
-    fun getEnglishNgramScore(plainText: String, n: Int): Double {
+    private fun getEnglishNgramScore(plainText: String, n: Int): Double {
         var result = 0.0
 
         TOP_10_ENGLISH_NGRAMS[n]?.let {
@@ -227,7 +227,7 @@ class VigenereCracker {
         return result
     }
 
-    fun getKeyCharForSpeculatedPlainChar(cipherChar: Char, speculatedPlainChar: Char): Char? {
+    private fun getKeyCharForSpeculatedPlainChar(cipherChar: Char, speculatedPlainChar: Char): Char? {
         var result: Char? = null
 
         for (keyChar in 'A' .. 'Z') {
@@ -244,9 +244,9 @@ class VigenereCracker {
     }
 
     companion object {
-        val MAX_KEY_LENGTH_CANDIDATE = 15
+        const val MAX_KEY_LENGTH_CANDIDATE = 15
 
-        val CHAR_WEIGTH = 0.5
+        const val CHAR_WEIGTH = 0.5
         val TOP_10_ENGLISH_LETTERS: Map<String, Double> = mapOf(
             "E" to 0.127,
             "T" to 0.091,
@@ -260,7 +260,7 @@ class VigenereCracker {
             "D" to 0.043
         )
 
-        val BIGRAM_WEIGTH = 0.3
+        const val BIGRAM_WEIGTH = 0.3
         val TOP_10_ENGLISH_BIGRAMS: Map<String, Double> = mapOf(
             "TH" to 0.0356,
             "HE" to 0.0307,
@@ -274,7 +274,7 @@ class VigenereCracker {
             "AT" to 0.0149
         )
 
-        val TRIGRAM_WEIGTH = 0.15
+        const val TRIGRAM_WEIGTH = 0.15
         val TOP_10_ENGLISH_TRIGRAMS: Map<String, Double> = mapOf(
             "THE" to 0.0181,
             "AND" to 0.0073,
@@ -288,7 +288,7 @@ class VigenereCracker {
             "ETH" to 0.0021
         )
 
-        val QUADRIGRAM_WEIGTH = 0.05
+        const val QUADRIGRAM_WEIGTH = 0.05
         val TOP_10_ENGLISH_QUADRIGRAMS: Map<String, Double> = mapOf(
             "THER" to 0.0031,
             "THAT" to 0.0026,
