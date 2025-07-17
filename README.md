@@ -127,7 +127,7 @@ in the enciphering process. If we conjecture a range of key lengths and keep tra
 them, the true key length should give the highest score.
 
 *Note: This is not typically how the key length is determined.  Usually the Kasiski Test or the Index of Coincidence
-is used.  This  is just what I came up with before I knew that and it seems to work okay so, but may fall over if I
+is used.  This  is just what I came up with before I knew that and it seems to work okay, but may fall over if I
 start allowing longer keys. Leaving it alone for now and will revisit later.*
 
 ### Determining the key
