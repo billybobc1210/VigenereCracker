@@ -118,7 +118,7 @@ class VigenereCrackerTest {
             val actual = solution.key
             if (actual != expected) {
                 if (plainTextLen > expectedFallover) {
-                    assertEquals(WORST_CASE_KEY, solution.key)
+                    assertEquals("$expectedFallover $WORST_CASE_KEY", "$plainTextLen " + solution.key)
                 } else if (plainTextLen < expectedFallover) {
                     println("Improved fallover point: File name: ${file.name}, key: $WORST_CASE_KEY, plane text len: $plainTextLen")
                 }
