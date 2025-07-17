@@ -57,17 +57,38 @@ class VigenereCrackerTest {
     }
 
     @Test
-    fun englishScoreTest() {
+    fun englishScoreTest1() {
+        englishScoreTest("TOM", "TIM", "DSJOIGOJVMF")
+    }
+
+    @Test
+    fun englishScoreTest2() {
+        englishScoreTest("BILL", "XILL", "DGJDDJG")
+    }
+
+    @Test
+    fun englishScoreTest3() {
+        englishScoreTest("FRODO", "FROXO", "TGXKSLFLGUU")
+    }
+
+    @Test
+    fun englishScoreTest4() {
+        englishScoreTest("ELROND", "ELRXND", "LHXMSKIA")
+    }
+
+    @Test
+    fun englishScoreTest5() {
+        englishScoreTest("GANDALFTHEGREY", "GANDXLFTHEGREY", "LSICKGYS")
+    }
+
+    fun englishScoreTest(key: String, slightlyIncorrectKey: String, veryIncorrectKey: String) {
         val vigenereCipher = VigenereCipher()
         val vigenereCracker = VigenereCracker()
-        val plainText = EncryptionUtil.getNormalizedText(File("hobbit.txt").readText())
-        val key = "GANDALFTHEGREY"
+        val plainText = EncryptionUtil.getNormalizedText(File("tcoe.txt").readText())
         val cipherText = vigenereCipher.encipher(plainText, key)
         val plainTextEnglishScore = vigenereCracker.getEnglishPlainTextScore(plainText)
-        val slightlyIncorrectKey = "GANDWXFTHEGREY"
         val slightlyIncorrectPlainText = vigenereCipher.decipher(cipherText, slightlyIncorrectKey)
         val slightlyIncorrectEnglishScore = vigenereCracker.getEnglishPlainTextScore(slightlyIncorrectPlainText)
-        val veryIncorrectKey = "LSICKGYS"
         val veryIncorrectPlainText = vigenereCipher.decipher(cipherText, veryIncorrectKey)
         val veryIncorrectEnglishScore = vigenereCracker.getEnglishPlainTextScore(veryIncorrectPlainText)
         assert(plainTextEnglishScore > slightlyIncorrectEnglishScore)
