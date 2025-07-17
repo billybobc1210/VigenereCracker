@@ -43,17 +43,17 @@ class VigenereCrackerTest {
 
     @Test
     fun tcoeFalloverTest() {
-        falloverTest(File("tcoe.txt"), 1328)
+        falloverTest(File("tcoe.txt"), 1329)
     }
 
     @Test
     fun atotcFalloverTest() {
-        falloverTest(File("atotc.txt"), 276)
+        falloverTest(File("atotc.txt"), 277)
     }
 
     @Test
     fun hobbitFalloverTest() {
-        falloverTest(File("hobbit.txt"), 962)
+        falloverTest(File("hobbit.txt"), 963)
     }
 
     @Test
@@ -110,7 +110,6 @@ class VigenereCrackerTest {
 
         while (plainTextLen > 0) {
             val normalizedPlainText = EncryptionUtil.getNormalizedText(plainText).substring(0, plainTextLen)
-            plainTextLen--
 
 //            println("Filename: ${file.name}, key: $WORST_CASE_KEY, plane text len: $plainTextLen")
             val cipherText = vigenereCipher.encipher(normalizedPlainText, WORST_CASE_KEY)
@@ -124,6 +123,8 @@ class VigenereCrackerTest {
                 }
                 break
             }
+
+            plainTextLen--
         }
     }
 }
