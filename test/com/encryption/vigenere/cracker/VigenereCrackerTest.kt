@@ -58,7 +58,7 @@ class VigenereCrackerTest {
 
     @Test
     fun englishScoreTest1() {
-        englishScoreTest("TOM", "TIM", "DSJOIGOJVMF")
+        englishScoreTest("TOM", "TXM", "DSJOIGOJVMF")
     }
 
     @Test
