@@ -68,7 +68,7 @@ class VigenereCipher() {
     }
 
     companion object {
-        val TABULA_RECTA = mapOf(
+        private val TABULA_RECTA = mapOf(
             'A' to "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
             'B' to "BCDEFGHIJKLMNOPQRSTUVWXYZA",
             'C' to "CDEFGHIJKLMNOPQRSTUVWXYZAB",
