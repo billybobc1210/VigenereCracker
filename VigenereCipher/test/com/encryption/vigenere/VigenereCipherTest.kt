@@ -11,7 +11,7 @@ class VigenereCipherTest {
         val key = "AAA"
         val plainText = "All we have to fear is fear itself."
         val vigenereCipher = VigenereCipher()
-        val actualEnciphered = vigenereCipher.encipher(plainText, key)
+        val actualEnciphered = vigenereCipher.encipher(EncryptionUtil.getNormalizedText(plainText), key)
         assertEquals("ALLWEHAVETOFEARISFEARITSELF", actualEnciphered)
 
         val actualDeciphered = vigenereCipher.decipher(actualEnciphered, key)
@@ -23,7 +23,7 @@ class VigenereCipherTest {
         val key = "CAT"
         val plainText = "All we have to fear is fear itself."
         val vigenereCipher = VigenereCipher()
-        val actualEnciphered = vigenereCipher.encipher(plainText, key)
+        val actualEnciphered = vigenereCipher.encipher(EncryptionUtil.getNormalizedText(plainText), key)
         assertEquals("CLEYEACVXVOYGAKKSYGAKKTLGLY", actualEnciphered)
 
         val actualDeciphered = vigenereCipher.decipher(actualEnciphered, key)
@@ -35,7 +35,7 @@ class VigenereCipherTest {
         val key = "DOG"
         val plainText = "All we have to fear is fear itself."
         val vigenereCipher = VigenereCipher()
-        val actualEnciphered = vigenereCipher.encipher(plainText, key)
+        val actualEnciphered = vigenereCipher.encipher(EncryptionUtil.getNormalizedText(plainText), key)
         assertEquals("DZRZSNDJKWCLHOXLGLHOXLHYHZL", actualEnciphered)
 
         val actualDeciphered = vigenereCipher.decipher(actualEnciphered, key)
@@ -46,12 +46,46 @@ class VigenereCipherTest {
     fun test4() {
         val key = "GANDALF"
         val plainText = File("hobbit.txt").readText()
-        val normalizePlainText = EncryptionUtil.getNormalizedText(plainText)
+        val normalizedPlainText = EncryptionUtil.getNormalizedText(plainText)
         val vigenereCipher = VigenereCipher()
-        val actualEnciphered = vigenereCipher.encipher(normalizePlainText, key)
+        val actualEnciphered = vigenereCipher.encipher(normalizedPlainText, key)
         assertEquals(File("hobbit_key_gandalf.txt").readText(), actualEnciphered)
 
         val actualDeciphered = vigenereCipher.decipher(actualEnciphered, key)
-        assertEquals(normalizePlainText, actualDeciphered)
+        assertEquals(normalizedPlainText, actualDeciphered)
+    }
+
+    @Test
+    fun test5() {
+        val key = "GANDALF"
+        val vigenereCipher = VigenereCipher()
+        val actualEnciphered = vigenereCipher.encipherFromUnnormalizedFile(File("hobbit.txt"), key)
+        assertEquals(File("hobbit_key_gandalf.txt").readText(), actualEnciphered)
+
+        val actualDeciphered = vigenereCipher.decipher(actualEnciphered, key)
+        assertEquals(EncryptionUtil.getNormalizedText(File("hobbit.txt").readText()), actualDeciphered)
+    }
+
+    @Test
+    fun test6() {
+        val key = "GANDALF"
+        val vigenereCipher = VigenereCipher()
+        val actualEnciphered = vigenereCipher.encipherFromFile(File("hobbit_normalized.txt"), key)
+        assertEquals(File("hobbit_key_gandalf.txt").readText(), actualEnciphered)
+
+        val actualDeciphered = vigenereCipher.decipher(actualEnciphered, key)
+        assertEquals(EncryptionUtil.getNormalizedText(File("hobbit.txt").readText()), actualDeciphered)
+    }
+
+    @Test
+    fun test7() {
+        val key = "GANDALF"
+        val vigenereCipher = VigenereCipher()
+        val unnormalizedPlainText = File("hobbit_normalized.txt").readText()
+        val actualEnciphered = vigenereCipher.encipherFromUnnormalizedText(unnormalizedPlainText, key)
+        assertEquals(File("hobbit_key_gandalf.txt").readText(), actualEnciphered)
+
+        val actualDeciphered = vigenereCipher.decipher(actualEnciphered, key)
+        assertEquals(EncryptionUtil.getNormalizedText(File("hobbit.txt").readText()), actualDeciphered)
     }
 }

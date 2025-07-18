@@ -1,39 +1,63 @@
 package com.encryption.vigenere
 
 import com.encryption.EncryptionUtil
+import java.io.File
 
 class VigenereCipher() {
-    fun encipher(plainText: String, key: String): String {
-        val result = StringBuilder()
+    fun encipherFromUnnormalizedFile(plainTextFile: File, key: String): String {
+        return encipher(EncryptionUtil.getNormalizedText(plainTextFile.readText()), key)
+    }
 
-        val normalizedPlainText = EncryptionUtil.getNormalizedText(plainText)
-        val normalizedKey = EncryptionUtil.getNormalizedText(key)
+    fun encipherFromFile(normalizedPlainTextFile: File, key: String): String {
+        return encipher(normalizedPlainTextFile.readText(), key)
+    }
+
+    fun encipherFromUnnormalizedText(plainText: String, key: String): String {
+        return encipher(EncryptionUtil.getNormalizedText(plainText), key)
+    }
+
+    fun encipher(normalizedPlainText: String, key: String): String {
+        if (normalizedPlainText.any { !('A'..'Z').contains(it) } ) {
+            throw Exception("Invalid cipher text")
+        }
+
+        if (key.any { !('A'..'Z').contains(it) } ) {
+            throw Exception("Invalid key: $key")
+        }
+
+        val result = StringBuilder()
 
         for (i in normalizedPlainText.indices) {
             val plainChar = normalizedPlainText[i]
-            val keyChar = normalizedKey[i % normalizedKey.length]
+            val keyChar = key[i % key.length]
             TABULA_RECTA[keyChar]?.let { result.append(it[plainChar - 'A']) }
         }
 
         return result.toString()
     }
 
-    fun decipher(cipherText: String, key: StringBuilder): String {
-        return decipher(cipherText, key.toString())
+    fun decipher(normalizedCipherText: String, key: StringBuilder): String {
+        return decipher(normalizedCipherText, key.toString())
     }
 
-    fun decipher(cipherText: String, key: StringBuffer): String {
-        return decipher(cipherText, key.toString())
+    fun decipher(normalizedCipherText: String, key: StringBuffer): String {
+        return decipher(normalizedCipherText, key.toString())
     }
 
-    fun decipher(cipherText: String, key: String): String {
+    fun decipher(normalizedCipherText: String, key: String): String {
+        if (normalizedCipherText.any { !('A'..'Z').contains(it) } ) {
+            throw Exception("Invalid cipher text")
+        }
+
+        if (key.any { !('A'..'Z').contains(it) } ) {
+            throw Exception("Invalid key: $key")
+        }
+
         val result = StringBuilder()
 
-        val normalizedKey = EncryptionUtil.getNormalizedText(key)
-
-        for (i in cipherText.indices) {
-            val cipherChar = cipherText[i]
-            val keyChar = normalizedKey[i % normalizedKey.length]
+        for (i in normalizedCipherText.indices) {
+            val cipherChar = normalizedCipherText[i]
+            val keyChar = key[i % key.length]
             TABULA_RECTA[keyChar]
                 ?.indexOf(cipherChar)
                 ?.takeIf { it in 0..25 }
