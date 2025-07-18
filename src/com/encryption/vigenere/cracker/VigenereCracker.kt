@@ -238,7 +238,7 @@ class VigenereCracker {
     }
 
     companion object {
-        val TABULA_RECTA = mapOf(
+        private val TABULA_RECTA = mapOf(
             'A' to "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
             'B' to "BCDEFGHIJKLMNOPQRSTUVWXYZA",
             'C' to "CDEFGHIJKLMNOPQRSTUVWXYZAB",
@@ -267,10 +267,10 @@ class VigenereCracker {
             'Z' to "ZABCDEFGHIJKLMNOPQRSTUVWXY",
         )
 
-        const val MAX_KEY_LENGTH_CANDIDATE = 15
+        private const val MAX_KEY_LENGTH_CANDIDATE = 15
 
-        const val CHAR_WEIGTH = 0.5
-        val TOP_10_ENGLISH_LETTERS: Map<String, Double> = mapOf(
+        private const val CHAR_WEIGTH = 0.5
+        private val TOP_10_ENGLISH_LETTERS: Map<String, Double> = mapOf(
             "E" to 0.127,
             "T" to 0.091,
             "A" to 0.082,
@@ -283,8 +283,8 @@ class VigenereCracker {
             "D" to 0.043
         )
 
-        const val BIGRAM_WEIGTH = 0.3
-        val TOP_10_ENGLISH_BIGRAMS: Map<String, Double> = mapOf(
+        private const val BIGRAM_WEIGTH = 0.3
+        private val TOP_10_ENGLISH_BIGRAMS: Map<String, Double> = mapOf(
             "TH" to 0.0356,
             "HE" to 0.0307,
             "IN" to 0.0243,
@@ -297,8 +297,8 @@ class VigenereCracker {
             "AT" to 0.0149
         )
 
-        const val TRIGRAM_WEIGTH = 0.15
-        val TOP_10_ENGLISH_TRIGRAMS: Map<String, Double> = mapOf(
+        private const val TRIGRAM_WEIGTH = 0.15
+        private val TOP_10_ENGLISH_TRIGRAMS: Map<String, Double> = mapOf(
             "THE" to 0.0181,
             "AND" to 0.0073,
             "ING" to 0.0072,
@@ -311,8 +311,8 @@ class VigenereCracker {
             "ETH" to 0.0021
         )
 
-        const val QUADRIGRAM_WEIGTH = 0.05
-        val TOP_10_ENGLISH_QUADRIGRAMS: Map<String, Double> = mapOf(
+        private const val QUADRIGRAM_WEIGTH = 0.05
+        private val TOP_10_ENGLISH_QUADRIGRAMS: Map<String, Double> = mapOf(
             "THER" to 0.0031,
             "THAT" to 0.0026,
             "WITH" to 0.0024,
@@ -325,7 +325,7 @@ class VigenereCracker {
             "THEY" to 0.0013
         )
 
-        val TOP_10_ENGLISH_NGRAMS: Map<Int, Map<String, Double>> = mapOf(
+        private val TOP_10_ENGLISH_NGRAMS: Map<Int, Map<String, Double>> = mapOf(
             1 to TOP_10_ENGLISH_LETTERS,
             2 to TOP_10_ENGLISH_BIGRAMS,
             3 to TOP_10_ENGLISH_TRIGRAMS,
