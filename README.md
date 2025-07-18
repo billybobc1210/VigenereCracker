@@ -1,8 +1,8 @@
 # Vigenere Cipher Cracker
 
 This is a program for cracking a message enciphered using a Vigenere Cipher.  The class for doing the cracking is called
-VigenereCracker.  The project also includes a class, VigenereCipher, for enciphering and deciphering such messages given
-a key.  
+VigenereCracker.  The project also includes a class in a separate module, VigenereCipher, for enciphering and deciphering 
+such messages given a key.  
 
 ## How the Vigenere Cipher works
 
@@ -79,16 +79,14 @@ character at any time, including itself.
 
 The strategy for cracking the Vigenere cipher is to:  
 
-1) Determine the most likely length of the key
-2) Once the key length, k, is known, we can break the cipher text into k-length substrings where each character at
-position p in the substring was encrypted using the same alphabet. We can then build k substrings using characters
-all from the same enciphering alphabet and use frequency analysis to work backwards to finding the key.
+1) Determine the most likely length of the key.
+2) Once the key length is known, we can use frequency analysis to work backwards to find the most likely key.
 
 ### Determining the length of the key
 
 *Note: the example used here is too short to work in practice, but using it here for illustrative purposes.*
 
-Using our example of a text that was enciphered with the key, "DOG", for example
+Using our example of a text that was enciphered with the key, "DOG", for example:
 
 ```
 DZRZSNDJKWCLHOXLGLHOXLHYHZL
@@ -113,7 +111,7 @@ HZL
 we can see that every character in column 1 was enciphered using the 'D' character in the key, meaning that all those
 characters came from the same enciphering alphabet in the Tabula Recta. Similar for column 2 ('O' character in the key) 
 and 3 ('G' character in the key). This will only be true for key lengths of 3 (or multiples of 3).  Therefore, if we 
-construct 3 strings from the characters in each of these 3 columns like this:
+construct 3 string "slices" from the characters in each of these 3 columns like this:
 ```
 Column 1: DZDWHLHLH  
 Column 2: ZSJCOGOHZ
@@ -124,14 +122,14 @@ frequencies in these strings, we should find that the standard deviation will be
 using an incorrect key length. This is because the character frequency distribution should be basically the same as 
 that of english, which is going to be less flat than an enciphered message that used multiple different alphabets 
 in the enciphering process. If we conjecture a range of key lengths and keep track of the best std dev score among
-them, the true key length should give the highest score.
+them, the std dev for the true key length should give the highest score.
 
 *Note: This is not typically how the key length is determined.  Usually the Kasiski Test or the Index of Coincidence
-is used.  This  is just what I came up with before I knew that and it seems to work okay, but may fall over if I
+is used.  This  is just what I came up with before I knew that, and it seems to work okay, but may fall over if I
 start allowing longer keys. Leaving it alone for now and will revisit later.*
 
 ### Determining the key
-Using the key length determined in the previous step, we again construct the 3 strings:
+Using the key length determined in the previous step, we again construct the 3 string slices:
 ```
 Column 1: DZDWHLHLH  
 Column 2: ZSJCOGOHZ
