@@ -66,7 +66,7 @@ class VigenereCracker {
             stdDevSum += getStandardDeviation(cipherFrequencyMap)
         }
 
-        return stdDevSum / keyLength.toDouble()
+        return stdDevSum / keyLength
     }
 
     private fun getMostLikelyKeyLength(cipherText: String, keyLengthRange: IntRange): Int {
@@ -203,7 +203,7 @@ class VigenereCracker {
                 (BIGRAM_WEIGTH * getEnglishNgramScore(plainText, 2)) +
                 (TRIGRAM_WEIGTH * getEnglishNgramScore(plainText, 3)) +
                 (QUADRIGRAM_WEIGTH * getEnglishNgramScore(plainText, 4))) /
-                plainText.length.toDouble()
+                plainText.length
     }
 
     private fun getEnglishNgramScore(plainText: String, n: Int): Double {
@@ -215,7 +215,7 @@ class VigenereCracker {
                 log10(top10EnglishNgrams.getOrDefault(nGram, 1e-7))
             }
 
-            result = logProbabilities.sum() / nGramsList.size.toDouble()
+            result = logProbabilities.sum() / nGramsList.size
         }
 
         return result
