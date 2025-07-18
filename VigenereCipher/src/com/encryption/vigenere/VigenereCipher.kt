@@ -1,4 +1,4 @@
-package com.encryption.vigenere.encipher
+package com.encryption.vigenere
 
 import com.encryption.EncryptionUtil
 

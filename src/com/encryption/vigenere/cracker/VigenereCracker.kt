@@ -1,7 +1,7 @@
 package com.encryption.vigenere.cracker
 
 import com.encryption.EncryptionUtil
-import com.encryption.vigenere.encipher.VigenereCipher
+import com.encryption.vigenere.VigenereCipher
 import java.io.File
 import kotlin.math.log10
 import kotlin.math.pow
@@ -231,7 +231,7 @@ class VigenereCracker {
         var result: Char? = null
 
         for (keyChar in 'A' .. 'Z') {
-            VigenereCipher.TABULA_RECTA[keyChar]
+            TABULA_RECTA[keyChar]
                 ?.getOrNull(speculatedPlainChar - 'A')
                 ?.let {
                     if (it == cipherChar) {
@@ -244,6 +244,35 @@ class VigenereCracker {
     }
 
     companion object {
+        val TABULA_RECTA = mapOf(
+            'A' to "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            'B' to "BCDEFGHIJKLMNOPQRSTUVWXYZA",
+            'C' to "CDEFGHIJKLMNOPQRSTUVWXYZAB",
+            'D' to "DEFGHIJKLMNOPQRSTUVWXYZABC",
+            'E' to "EFGHIJKLMNOPQRSTUVWXYZABCD",
+            'F' to "FGHIJKLMNOPQRSTUVWXYZABCDE",
+            'G' to "GHIJKLMNOPQRSTUVWXYZABCDEF",
+            'H' to "HIJKLMNOPQRSTUVWXYZABCDEFG",
+            'I' to "IJKLMNOPQRSTUVWXYZABCDEFGH",
+            'J' to "JKLMNOPQRSTUVWXYZABCDEFGHI",
+            'K' to "KLMNOPQRSTUVWXYZABCDEFGHIJ",
+            'L' to "LMNOPQRSTUVWXYZABCDEFGHIJK",
+            'M' to "MNOPQRSTUVWXYZABCDEFGHIJKL",
+            'N' to "NOPQRSTUVWXYZABCDEFGHIJKLM",
+            'O' to "OPQRSTUVWXYZABCDEFGHIJKLMN",
+            'P' to "PQRSTUVWXYZABCDEFGHIJKLMNO",
+            'Q' to "QRSTUVWXYZABCDEFGHIJKLMNOP",
+            'R' to "RSTUVWXYZABCDEFGHIJKLMNOPQ",
+            'S' to "STUVWXYZABCDEFGHIJKLMNOPQR",
+            'T' to "TUVWXYZABCDEFGHIJKLMNOPQRS",
+            'U' to "UVWXYZABCDEFGHIJKLMNOPQRST",
+            'V' to "VWXYZABCDEFGHIJKLMNOPQRSTU",
+            'W' to "WXYZABCDEFGHIJKLMNOPQRSTUV",
+            'X' to "XYZABCDEFGHIJKLMNOPQRSTUVW",
+            'Y' to "YZABCDEFGHIJKLMNOPQRSTUVWX",
+            'Z' to "ZABCDEFGHIJKLMNOPQRSTUVWXY",
+        )
+
         const val MAX_KEY_LENGTH_CANDIDATE = 15
 
         const val CHAR_WEIGTH = 0.5

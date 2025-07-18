@@ -2,7 +2,7 @@ package com.encryption.vigenere.cracker
 
 import com.encryption.EncryptionUtil
 import com.encryption.EncryptionUtil.Companion.collapseRepeatedString
-import com.encryption.vigenere.encipher.VigenereCipher
+import com.encryption.vigenere.VigenereCipher
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.File
