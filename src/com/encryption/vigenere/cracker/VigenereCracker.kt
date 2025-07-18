@@ -31,7 +31,7 @@ class VigenereCracker {
         return VigenereSolution(mostLikelyKey, mostLikelyPlainText)
     }
 
-    private fun getCharFrequencyMap(text: String): List<Map.Entry<Char, Double>> {
+    private fun getNormalizedCharFrequencyMap(text: String): List<Map.Entry<Char, Double>> {
         val result = text
             .groupingBy { it }
             .eachCount()
@@ -53,16 +53,16 @@ class VigenereCracker {
         return sqrt(variance)
     }
 
-    private fun buildStringFromEveryNthChar(text: String, n: Int, offset: Int = 0): String {
-        return text.substring(offset).filterIndexed { index, _ -> index % n == 0 }
+    private fun getSlice(text: String, n: Int, offset: Int = 0): String {
+        return text.slice(offset until text.length step n)
     }
 
     private fun getKeyLengthScore(cipherText: String, keyLength: Int): Double {
         var stdDevSum = 0.0
 
         for (keyCharPosition in 0 until keyLength) {
-            val cipherSlice = buildStringFromEveryNthChar(cipherText, keyLength, keyCharPosition)
-            val cipherFrequencyMap = getCharFrequencyMap(cipherSlice)
+            val cipherSlice = getSlice(cipherText, keyLength, keyCharPosition)
+            val cipherFrequencyMap = getNormalizedCharFrequencyMap(cipherSlice)
             stdDevSum += getStandardDeviation(cipherFrequencyMap)
         }
 
@@ -126,8 +126,8 @@ class VigenereCracker {
         val keyCharCandidatesByKeyCharPosition = mutableListOf<List<Char>>()
 
         for (keyCharPosition in 0 until keyLength) {
-            val cipherSlice = buildStringFromEveryNthChar(cipherText, keyLength, keyCharPosition)
-            val cipherFrequencyMap = getCharFrequencyMap(cipherSlice)
+            val cipherSlice = getSlice(cipherText, keyLength, keyCharPosition)
+            val cipherFrequencyMap = getNormalizedCharFrequencyMap(cipherSlice)
             var mostFrequentCipherChar = cipherFrequencyMap[0].key
 
             val keyCharCandidates = mutableListOf<Char>()
