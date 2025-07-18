@@ -99,12 +99,12 @@ class VigenereCracker {
         // a similar score to the high score.  If the number of similar scores, s, is a factor of the current best key
         // length candidate, then most likely the real key length is the current best key length candidate divided by s.
         val bestToWorstScoreRatio = bestScore / worstScore
-        val keyLengthScoreSimilarityLimit = 1.0 + ((bestToWorstScoreRatio - 1.0) / scores.size)
+        val maxScoreSimilarityRatio = 1.0 + ((bestToWorstScoreRatio - 1.0) / scores.size)
         val similarToBestScore = mutableSetOf<Int>()
 
         for (keyLengthCandidate in keyLengthRange.first .. bestKeyLengthCandidate) {
             scores[keyLengthCandidate]?.let { score ->
-                if (bestScore / score <= keyLengthScoreSimilarityLimit) {
+                if (bestScore / score <= maxScoreSimilarityRatio) {
                     similarToBestScore.add(keyLengthCandidate)
                 }
             }
