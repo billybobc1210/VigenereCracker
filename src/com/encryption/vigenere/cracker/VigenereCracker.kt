@@ -209,13 +209,13 @@ class VigenereCracker {
     private fun getEnglishNgramScore(plainText: String, n: Int): Double {
         var result = 0.0
 
-        TOP_10_ENGLISH_NGRAMS[n]?.let {
-            val ngrams = (0..plainText.length - n).map { plainText.substring(it, it + n).uppercase() }
-            val logProbabilities = ngrams.map { trigram ->
-                log10(it.getOrDefault(trigram, 1e-7))
+        TOP_10_ENGLISH_NGRAMS[n]?.let { top10EnglishNgrams ->
+            val nGramsList = (0..plainText.length - n).map { plainText.substring(it, it + n).uppercase() }
+            val logProbabilities = nGramsList.map { nGram ->
+                log10(top10EnglishNgrams.getOrDefault(nGram, 1e-7))
             }
 
-            result = logProbabilities.sum() / ngrams.size.toDouble()
+            result = logProbabilities.sum() / nGramsList.size.toDouble()
         }
 
         return result
