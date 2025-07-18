@@ -41,7 +41,7 @@ class VigenereCracker {
             result.putIfAbsent(c, 0)
         }
 
-        return result.mapValues { it.value.toDouble() / text.length.toDouble() }.entries
+        return result.mapValues { it.value.toDouble() / text.length }.entries
             .sortedByDescending { it.value }
     }
 
