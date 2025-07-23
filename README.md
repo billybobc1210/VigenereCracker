@@ -1,9 +1,7 @@
 # Vigenere Cipher Cracker
-
 This is a program for cracking a message enciphered using a Vigenere Cipher.  The class for doing the cracking is called
 VigenereCracker.  The project also includes a class in a separate module, VigenereCipher, for enciphering and deciphering 
-such messages given a key.  
-
+such messages given a key.
 ## How the Vigenere Cipher works
 
 Given a plain text message such as:
@@ -17,20 +15,17 @@ to upper case.
 ```
 ALLWEHAVETOFEARISFEARITSELF
 ```
-
-Next pick a key, such as "DOG", and place the key repeating above the plain text message
-
+Next pick a key, such as "DOG".  This is the secret key that only the sender and receiver know that is used to both 
+encipher and decipher the message. Place the key repeating above the plain text message.
 ```
 DOGDOGDOGDOGDOGDOGDOGDOGDOG
 ALLWEHAVETOFEARISFEARITSELF
 ```
-
-Use the following table called the Tabula Recta to encipher each character.
-
+Use the following table called the Tabula Recta to encipher each character:
 ```
      ABCDEFGHIJKLMNOPQRSTUVWXYZ  <- plain text characters
      --------------------------
- A   ABCDEFGHIJKLMNOPQRSTUVWXYZ  
+ A   ABCDEFGHIJKLMNOPQRSTUVWXYZ  <- cipher text alphabets
  B   BCDEFGHIJKLMNOPQRSTUVWXYZA  
  C   CDEFGHIJKLMNOPQRSTUVWXYZAB  
  D   DEFGHIJKLMNOPQRSTUVWXYZABC  
@@ -61,22 +56,31 @@ Use the following table called the Tabula Recta to encipher each character.
  |
  +--- key characters
 ```
-For each plain text character in the message, use the key character above it to find the correct row to
-use in the Tabula Recta to encipher the character.  E.g. the first 'A' in the plain text will be enciphered using 
-the 'D' in "DOG".  So find the row in the table with a heading of 'D' and the column that is headed by the 'A' 
-character.  Where those two intersect is the enciphered character ('D').  The next plain text character is an 'L' 
-enciphered by the 'O' character. The character at the intersection of the 'O' row and the 'L' column is 'Z'. etc. 
+For each plain text character in the message, use the key character above it to find the correct cipher text alphabet 
+to use in the Tabula Recta to encipher the character.  E.g. the first 'A' in the plain text will be enciphered using 
+the 'D' in "DOG".  So find the row in the table with a key character heading of 'D' and the column that is headed by 
+the 'A' character.  Where those two intersect is the enciphered character ('D').  The next plain text character is an 
+'L' enciphered by the 'O' character. The character at the intersection of the 'O' row and the 'L' column is 'Z'. etc. 
 Eventually we end up with the complete cipher text of:
-
 ```
 DZRZSNDJKWCLHOXLGLHOXLHYHZL
 ```
+To decipher a message we just reverse the process. First write the cipher text down with the key repeated above it:
+```
+DOGDOGDOGDOGDOGDOGDOGDOGDOG
+DZRZSNDJKWCLHOXLGLHOXLHYHZL  
+```
+Next find the row in the Tabula Recta corresponding to the key character above the cipher text character you're 
+trying to decipher.  E.g. the first character of the cipher text is 'D' and the key character above it is also a 
+'D'.  So starting at the beginning of the cipher text alphabet at row 'D' we move right until we find the 'D' 
+character.  In this case, we find 'D' at the first character of the alphabet.  We then move up that first column to 
+the top of the Tabula Recta until we get to the plain text heading and find that that column corresponds to the letter
+'A', which is the first letter of our original plain text.  
+
 The goal of the Vigenere cipher is to make deciphering using frequency analysis more difficult by flattening the
-character frequency distribution in the enciphered text, since the same character can be enciphered to any other 
+character frequency distribution in the enciphered text, since the same character can be enciphered to any other
 character at any time, including itself.
-
 ## Cracking the Vigenere Cipher
-
 The strategy for cracking the Vigenere cipher is to:  
 
 1) Determine the most likely length of the key.
@@ -87,14 +91,11 @@ The strategy for cracking the Vigenere cipher is to:
 *Note: the example used here is too short to work in practice, but using it here for illustrative purposes.*
 
 Using our example of a text that was enciphered with the key, "DOG", for example:
-
 ```
 DZRZSNDJKWCLHOXLGLHOXLHYHZL
 ```
-
 if we conjecture a key length of 3 and break the cipher text up into multiple strings of length 3 and rewrite it 
 like this:
-
 ```
 DOG <- KEY
 ---
@@ -127,7 +128,6 @@ them, the std dev for the true key length should give the highest score.
 *Note: This is not typically how the key length is determined.  Usually the Kasiski Test or the Index of Coincidence
 is used.  This  is just what I came up with before I knew that, and it seems to work okay, but may fall over if I
 start allowing longer keys. Leaving it alone for now and will revisit later.*
-
 ### Determining the key
 Using the key length determined in the previous step, we again construct the 3 string slices:
 ```
@@ -140,9 +140,7 @@ plain text character was that it was enciphered from by assuming that it must be
 language. Then we can work backwards to the key character that would have enciphered it that way. We can then 
 iteratively refine our best guess at what the key character is in each position, eventually (hopefully) arriving at the 
 correct key.
-
 ### Testing the "English-ness" of plain text
-
 In order to iteratively refine the key that best fits, we need some way to test to see how good of a fit it is.  To
 do this we use a conjectured key to decipher the cipher text and then test how english-y the generated plain text is
 and give it a numeric score.  The way we do this is to search the plain text for common english bigrams, trigrams and
