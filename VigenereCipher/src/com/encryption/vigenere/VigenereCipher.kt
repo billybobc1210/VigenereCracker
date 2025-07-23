@@ -17,11 +17,11 @@ class VigenereCipher() {
     }
 
     fun encipher(normalizedPlainText: String, key: String): String {
-        if (normalizedPlainText.any { !('A'..'Z').contains(it) } ) {
+        if (!normalizedPlainText.all { it in 'A'..'Z' }) {
             throw Exception("Invalid cipher text")
         }
 
-        if (key.any { !('A'..'Z').contains(it) } ) {
+        if (!key.all { it in 'A'..'Z' }) {
             throw Exception("Invalid key: $key")
         }
 
@@ -30,7 +30,7 @@ class VigenereCipher() {
         for (i in normalizedPlainText.indices) {
             val plainChar = normalizedPlainText[i]
             val keyChar = key[i % key.length]
-            TABULA_RECTA[keyChar]?.let { result.append(it[plainChar - 'A']) }
+            result.append(TABULA_RECTA[keyChar]?.let { it[plainChar - 'A'] })
         }
 
         return result.toString()
@@ -45,11 +45,11 @@ class VigenereCipher() {
     }
 
     fun decipher(normalizedCipherText: String, key: String): String {
-        if (normalizedCipherText.any { !('A'..'Z').contains(it) } ) {
+        if (!normalizedCipherText.all { it in 'A'..'Z' }) {
             throw Exception("Invalid cipher text")
         }
 
-        if (key.any { !('A'..'Z').contains(it) } ) {
+        if (!key.all { it in 'A'..'Z' }) {
             throw Exception("Invalid key: $key")
         }
 
@@ -58,10 +58,10 @@ class VigenereCipher() {
         for (i in normalizedCipherText.indices) {
             val cipherChar = normalizedCipherText[i]
             val keyChar = key[i % key.length]
-            TABULA_RECTA[keyChar]
-                ?.indexOf(cipherChar)
-                ?.takeIf { it in 0..25 }
-                ?.let { result.append('A' + it) }
+            result.append(
+                TABULA_RECTA[keyChar]
+                    ?.indexOf(cipherChar)
+                    ?.let { 'A' + it })
         }
 
         return result.toString()
