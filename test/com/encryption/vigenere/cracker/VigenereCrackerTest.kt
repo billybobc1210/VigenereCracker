@@ -15,7 +15,7 @@ class VigenereCrackerTest {
             "XY", "OFJHZLKGHOOGHIM",
         )
 
-        val WORST_CASE_KEY ="OFJHZLKGHOOGHIM"
+        val WORST_CASE_KEY ="GANDALFTHEGREYX"
 
         val TEST_FILE_NAMES =  listOf(
             "tcoe.txt",
