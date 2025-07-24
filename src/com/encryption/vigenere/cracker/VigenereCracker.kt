@@ -132,7 +132,7 @@ class VigenereCracker {
 
             val keyCharCandidates = mutableListOf<Char>()
 
-            for (c in TOP_10_ENGLISH_LETTERS.map { it.key[0] } ) {
+            for (c in unigramProbs.entries.take(10).map { it.key[0] } ) {
                 getKeyCharForSpeculatedPlainChar(mostFrequentCipherChar, c)?.let { keyCharCandidates.add(it) }
             }
 
@@ -255,19 +255,6 @@ class VigenereCracker {
         )
 
         private const val MAX_KEY_LENGTH_CANDIDATE = 15
-
-        private val TOP_10_ENGLISH_LETTERS: Map<String, Double> = mapOf(
-            "E" to 0.127,
-            "T" to 0.091,
-            "A" to 0.082,
-            "O" to 0.075,
-            "I" to 0.070,
-            "N" to 0.067,
-            "S" to 0.063,
-            "H" to 0.061,
-            "R" to 0.060,
-            "D" to 0.043
-        )
 
         private val NGRAM_WEIGHTS = mapOf(
             1 to 0.70,
