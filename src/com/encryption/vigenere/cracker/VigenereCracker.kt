@@ -3,7 +3,7 @@ package com.encryption.vigenere.cracker
 import com.encryption.EncryptionUtil
 import com.encryption.vigenere.VigenereCipher
 import java.io.File
-import kotlin.math.log10
+import java.lang.Math.log
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -147,6 +147,7 @@ class VigenereCracker {
         val bestKeyCharCandidates = keyCharCandidatesByKeyCharPosition.map { it[0] }.toMutableList()
         var currentBestKey = bestKeyCharCandidates.map { it }.joinToString("")
         var prevBestKey = ""
+        var bestEnglishScore = Double.NEGATIVE_INFINITY
 
         // Iteratively try to improve the best key until there was no improvement from the last iteration.
         while (prevBestKey != currentBestKey) {
@@ -169,8 +170,6 @@ class VigenereCracker {
                 for (endOfKeyCharPosition in varyingKeyCharPosition + 1 until keyLength) {
                     endOfKeyBuilder.append(bestKeyCharCandidates[endOfKeyCharPosition])
                 }
-
-                var bestEnglishScore = Double.NEGATIVE_INFINITY
 
                 // Loop thru all key char candidates at 'varyingKeyCharPosition', using each of them to build a new key
                 // and testing to find the best key char candidate at this position.
@@ -198,27 +197,15 @@ class VigenereCracker {
         return EncryptionUtil.collapseRepeatedString(currentBestKey)
     }
 
-    internal fun getEnglishPlainTextScore(plainText: String): Double {
-        return ((CHAR_WEIGTH * getEnglishNgramScore(plainText, 1)) +
-                (BIGRAM_WEIGTH * getEnglishNgramScore(plainText, 2)) +
-                (TRIGRAM_WEIGTH * getEnglishNgramScore(plainText, 3)) +
-                (QUADRIGRAM_WEIGTH * getEnglishNgramScore(plainText, 4))) /
-                plainText.length
-    }
-
-    private fun getEnglishNgramScore(plainText: String, n: Int): Double {
-        var result = 0.0
-
-        TOP_10_ENGLISH_NGRAMS[n]?.let { top10EnglishNgrams ->
-            val nGramsList = (0..plainText.length - n).map { plainText.substring(it, it + n).uppercase() }
-            val logProbabilities = nGramsList.map { nGram ->
-                log10(top10EnglishNgrams.getOrDefault(nGram, 1e-7))
-            }
-
-            result = logProbabilities.sum() / nGramsList.size
+    internal fun getEnglishPlainTextScore(text: String): Double {
+        val totalScore = (1..4).sumOf { n ->
+            val weight = NGRAM_WEIGHTS[n] ?: 0.0
+            val nGramLogProbabilities = TOP_ENGLISH_NGRAMS[n] ?: return@sumOf 0.0
+            val ngrams = text.windowed(n, 1)
+            weight * ngrams.sumOf { ngram -> nGramLogProbabilities[ngram] ?: log(1e-6) }
         }
 
-        return result
+        return totalScore / text.length
     }
 
     private fun getKeyCharForSpeculatedPlainChar(cipherChar: Char, speculatedPlainChar: Char): Char? {
@@ -269,7 +256,6 @@ class VigenereCracker {
 
         private const val MAX_KEY_LENGTH_CANDIDATE = 15
 
-        private const val CHAR_WEIGTH = 0.5
         private val TOP_10_ENGLISH_LETTERS: Map<String, Double> = mapOf(
             "E" to 0.127,
             "T" to 0.091,
@@ -283,53 +269,56 @@ class VigenereCracker {
             "D" to 0.043
         )
 
-        private const val BIGRAM_WEIGTH = 0.3
-        private val TOP_10_ENGLISH_BIGRAMS: Map<String, Double> = mapOf(
-            "TH" to 0.0356,
-            "HE" to 0.0307,
-            "IN" to 0.0243,
-            "ER" to 0.0205,
-            "AN" to 0.0199,
-            "RE" to 0.0185,
-            "ND" to 0.0172,
-            "ON" to 0.0165,
-            "EN" to 0.0162,
-            "AT" to 0.0149
+        private val NGRAM_WEIGHTS = mapOf(
+            1 to 0.70,
+            2 to 0.20,
+            3 to 0.06,
+            4 to 0.04,
         )
 
-        private const val TRIGRAM_WEIGTH = 0.15
-        private val TOP_10_ENGLISH_TRIGRAMS: Map<String, Double> = mapOf(
-            "THE" to 0.0181,
-            "AND" to 0.0073,
-            "ING" to 0.0072,
-            "HER" to 0.0042,
-            "ERE" to 0.0031,
-            "ENT" to 0.0028,
-            "THA" to 0.0027,
-            "NTH" to 0.0023,
-            "WAS" to 0.0022,
-            "ETH" to 0.0021
+        val unigramProbs = mapOf(
+            "E" to 0.1270, "T" to 0.0906, "A" to 0.0817, "O" to 0.0751, "I" to 0.0697,
+            "N" to 0.0675, "S" to 0.0633, "H" to 0.0609, "R" to 0.0599, "D" to 0.0425,
+            "L" to 0.0403, "C" to 0.0278, "U" to 0.0276, "M" to 0.0241, "W" to 0.0236,
+            "F" to 0.0223, "G" to 0.0202, "Y" to 0.0197, "P" to 0.0193, "B" to 0.0149,
+            "V" to 0.0098, "K" to 0.0077, "J" to 0.0015, "X" to 0.0015, "Q" to 0.0010,
+            "Z" to 0.0007
         )
 
-        private const val QUADRIGRAM_WEIGTH = 0.05
-        private val TOP_10_ENGLISH_QUADRIGRAMS: Map<String, Double> = mapOf(
-            "THER" to 0.0031,
-            "THAT" to 0.0026,
-            "WITH" to 0.0024,
-            "HERE" to 0.0021,
-            "HATI" to 0.0018,
-            "TION" to 0.0017,
-            "EVER" to 0.0016,
-            "FROM" to 0.0015,
-            "THIS" to 0.0014,
-            "THEY" to 0.0013
+        val bigramProbs = mapOf(
+            "TH" to 0.0356, "HE" to 0.0307, "IN" to 0.0243, "ER" to 0.0205, "AN" to 0.0199,
+            "RE" to 0.0185, "ND" to 0.0171, "ON" to 0.0165, "EN" to 0.0161, "AT" to 0.0149,
+            "OU" to 0.0128, "ED" to 0.0127, "HA" to 0.0124, "TO" to 0.0116, "OR" to 0.0113,
+            "IT" to 0.0112, "IS" to 0.0107, "HI" to 0.0107, "ES" to 0.0103, "NG" to 0.0095,
+            "ST" to 0.0091, "AR" to 0.0088, "SE" to 0.0083, "VE" to 0.0082, "AL" to 0.0079
         )
 
-        private val TOP_10_ENGLISH_NGRAMS: Map<Int, Map<String, Double>> = mapOf(
-            1 to TOP_10_ENGLISH_LETTERS,
-            2 to TOP_10_ENGLISH_BIGRAMS,
-            3 to TOP_10_ENGLISH_TRIGRAMS,
-            4 to TOP_10_ENGLISH_QUADRIGRAMS
+        val trigramProbs = mapOf(
+            "THE" to 0.0181, "AND" to 0.0073, "ING" to 0.0072, "HER" to 0.0051, "ERE" to 0.0046,
+            "ENT" to 0.0043, "THA" to 0.0042, "NTH" to 0.0041, "WAS" to 0.0038, "ETH" to 0.0037,
+            "FOR" to 0.0036, "DTH" to 0.0035, "HAT" to 0.0034, "SHE" to 0.0032, "ION" to 0.0031,
+            "TIO" to 0.0030, "VER" to 0.0029, "HIS" to 0.0028, "YOU" to 0.0027, "ITH" to 0.0026,
+            "HAD" to 0.0025, "ALL" to 0.0024, "ONE" to 0.0023, "NOT" to 0.0022, "BUT" to 0.0021
+        )
+
+        val quadrigramProbs = mapOf(
+            "TION" to 0.0032, "THER" to 0.0029, "WITH" to 0.0024, "HERE" to 0.0023, "OULD" to 0.0022,
+            "IGHT" to 0.0021, "HAVE" to 0.0020, "HICH" to 0.0019, "WHIC" to 0.0018, "THAT" to 0.0017,
+            "THES" to 0.0017, "ATIO" to 0.0016, "EVER" to 0.0016, "FROM" to 0.0015, "THIS" to 0.0015,
+            "TING" to 0.0014, "MENT" to 0.0014, "IONS" to 0.0013, "OUGH" to 0.0013, "THEM" to 0.0012,
+            "NING" to 0.0012, "ANCE" to 0.0012, "THEY" to 0.0012, "EDTH" to 0.0011, "STHE" to 0.0011
+        )
+
+        fun convertToLogProbabilities(nGramProbabilities: Map<String, Double>): Map<String, Double> {
+            val sum = nGramProbabilities.values.sum()
+            return nGramProbabilities.mapValues { log(it.value / sum) }
+        }
+
+        private val TOP_ENGLISH_NGRAMS: Map<Int, Map<String, Double>> = mapOf(
+            1 to convertToLogProbabilities(unigramProbs),
+            2 to convertToLogProbabilities(bigramProbs),
+            3 to convertToLogProbabilities(trigramProbs),
+            4 to convertToLogProbabilities(quadrigramProbs)
         )
     }
 }
