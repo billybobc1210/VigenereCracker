@@ -61,7 +61,8 @@ class VigenereCipher() {
             result.append(
                 TABULA_RECTA[keyChar]
                     ?.indexOf(cipherChar)
-                    ?.let { 'A' + it })
+                    ?.let { 'A' + it }
+            )
         }
 
         return result.toString()
