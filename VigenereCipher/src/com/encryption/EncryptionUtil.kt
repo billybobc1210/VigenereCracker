@@ -1,6 +1,7 @@
 package com.encryption
 
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 class EncryptionUtil {
@@ -39,6 +40,13 @@ class EncryptionUtil {
             }
 
             return result.sorted()
+        }
+
+        fun getStandardDeviation(values: List<Double>): Double {
+            val mean = values.average()
+            val variance = values.sumOf { (it - mean).pow(2) } / values.size
+
+            return sqrt(variance)
         }
     }
 }
