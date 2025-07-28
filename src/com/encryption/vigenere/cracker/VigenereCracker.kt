@@ -4,8 +4,6 @@ import com.encryption.EncryptionUtil
 import com.encryption.vigenere.VigenereCipher
 import java.io.File
 import java.lang.Math.log
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 class VigenereSolution(val key: String, val plainText: String)
 
@@ -46,11 +44,7 @@ class VigenereCracker {
     }
 
     private fun getStandardDeviation(frequencyMap: List<Map.Entry<Char, Double>>): Double {
-        val values = frequencyMap.map { it.value }
-        val mean = values.average()
-        val variance = values.sumOf { (it - mean).pow(2) } / values.size
-
-        return sqrt(variance)
+        return EncryptionUtil.getStandardDeviation(frequencyMap.map { it.value })
     }
 
     private fun getSlice(text: String, n: Int, offset: Int = 0): String {
@@ -197,15 +191,27 @@ class VigenereCracker {
         return EncryptionUtil.collapseRepeatedString(currentBestKey)
     }
 
-    internal fun getEnglishPlainTextScore(text: String): Double {
+    internal fun getEnglishPlainTextScore(text: String, weights: Map<Int, Double> = NGRAM_WEIGHTS): Double {
         val totalScore = (1..4).sumOf { n ->
-            val weight = NGRAM_WEIGHTS[n] ?: 0.0
             val nGramLogProbabilities = TOP_ENGLISH_NGRAMS[n] ?: return@sumOf 0.0
+            val weight = weights[n] ?: 0.0
+            val minProbability = nGramLogProbabilities.values.min()
+            val maxProbability = nGramLogProbabilities.values.max()
+            val probabilityRange = maxProbability - minProbability
             val ngrams = text.windowed(n, 1)
-            weight * ngrams.sumOf { ngram -> nGramLogProbabilities[ngram] ?: log(1e-6) }
+
+            val sum = ngrams.sumOf { ngram ->
+                nGramLogProbabilities[ngram]?.let {
+                    if (probabilityRange == 0.0) 1.0 else (it - minProbability) / probabilityRange
+                } ?: 0.0
+            }
+            val weightedSum = weight * sum
+            weightedSum
         }
 
-        return totalScore / text.length
+        val result = totalScore / text.length
+
+        return result
     }
 
     private fun getKeyCharForSpeculatedPlainChar(cipherChar: Char, speculatedPlainChar: Char): Char? {
@@ -257,10 +263,10 @@ class VigenereCracker {
         private const val MAX_KEY_LENGTH_CANDIDATE = 15
 
         private val NGRAM_WEIGHTS = mapOf(
-            1 to 0.70,
-            2 to 0.20,
-            3 to 0.06,
-            4 to 0.04,
+            1 to 1.00,
+            2 to 0.00,
+            3 to 0.00,
+            4 to 0.00,
         )
 
         val unigramProbs = mapOf(
